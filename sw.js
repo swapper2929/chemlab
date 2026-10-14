@@ -1,5 +1,5 @@
-const CACHE = 'chemlab-mt2-v1';
-const APP_SHELL = ['./', './index_updated(1).html', './manifest.webmanifest'];
+const CACHE = 'chemlab-mt2-v3';
+const APP_SHELL = ['./', './index_updated(1).html', './manifest.webmanifest', './css/core.css', './css/features.css', './js/boot.js', './js/app.js', './js/pwa.js'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
 });

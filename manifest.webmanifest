@@ -1,0 +1,13 @@
+{
+  "name": "ChemLab STEM — MT2 Chemistry",
+  "short_name": "ChemLab MT2",
+  "description": "Mô phỏng hóa học, định lượng, cân bằng ion và oxi hóa-khử",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index_updated(1).html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
+  "icons": []
+}

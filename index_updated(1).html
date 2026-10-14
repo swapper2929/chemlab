@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi" data-bs-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<meta name="description" content="ChemLab STEM PWA: mô phỏng, định lượng, cân bằng ion và oxi hóa-khử">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>ChemLab STEM Edition — Hoàng Mạnh Phước</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="./css/core.css">
+<link rel="stylesheet" href="./css/features.css">
+</head>
+<body>
+<div id="splashScreen" role="status" aria-label="Đang khởi động ChemLab STEM"><div class="splash-card"><div class="splash-mark"><i class="bi bi-hexagon-fill"></i></div><h1 class="splash-title">ChemLab</h1><div class="splash-sub">STEM Edition</div><div class="splash-credit">Sản phẩm phát triển bởi Hoàng Mạnh Phước</div><div class="splash-loader"></div></div></div>
+<script src="./js/boot.js"></script>
+<div class="app" data-view="lab" id="appRoot">
+  <header class="app-head">
+    <div class="brand">
+      <div class="brand-mark"><i class="bi bi-hexagon-fill"></i></div>
+      <div><div class="brand-name">ChemLab</div><div class="brand-tag">STEM Edition · Hoàng Mạnh Phước</div></div>
+    </div>
+    <div class="view-switch" id="viewSwitch">
+      <button class="view-tab active" data-view="lab"><i class="bi bi-beaker"></i><span>Laboratory</span></button>
+      <button class="view-tab" data-view="table"><i class="bi bi-grid-3x3-gap-fill"></i><span>Periodic Table</span></button>
+      <button class="view-tab" data-view="practice"><i class="bi bi-mortarboard"></i><span>Practice</span></button><button class="view-tab" data-view="sandbox"><i class="bi bi-grid-1x2-fill"></i><span>Sandbox</span></button>
+    </div>
+    <div class="head-spacer"></div>
+    <div class="head-toolbar" id="toolbarLab">
+      <button class="btn-u" data-bs-toggle="dropdown"><i class="bi bi-bookmark"></i> Presets</button>
+      <ul class="dropdown-menu dropdown-menu-dark" id="presetsMenu"></ul>
+      <button class="btn-u" id="btnReset"><i class="bi bi-arrow-counterclockwise"></i> Clean</button>
+      <button class="btn-u" id="btnExportMd"><i class="bi bi-filetype-md"></i> Export .md</button>
+      <button class="btn-u" id="btnExportCsv"><i class="bi bi-filetype-csv"></i></button><button class="btn-u" data-bs-toggle="modal" data-bs-target="#libraryModal"><i class="bi bi-collection-play"></i> Thư viện TN</button><button class="btn-u" data-bs-toggle="modal" data-bs-target="#compoundModal"><i class="bi bi-diagram-3"></i> Hợp chất</button><button class="btn-u" data-bs-toggle="modal" data-bs-target="#reactionModal"><i class="bi bi-lightning-charge"></i> Kho phản ứng</button><button class="btn-u" data-bs-toggle="modal" data-bs-target="#quantModal"><i class="bi bi-calculator"></i> Định lượng</button><button class="btn-u" data-bs-toggle="modal" data-bs-target="#advancedChemModal"><i class="bi bi-shuffle"></i> Ion / Redox</button><button class="btn-u" data-bs-toggle="modal" data-bs-target="#knowledgeModal"><i class="bi bi-book-half"></i> MT2</button>
+    </div>
+    <div class="head-toolbar" id="toolbarTable" style="display:none;">
+      <div class="chem-search" style="width:240px;"><i class="bi bi-search"></i><input type="text" id="elSearch" placeholder="Tìm nguyên tố…" autocomplete="off"></div>
+    </div>
+    <button class="btn-u" data-bs-toggle="modal" data-bs-target="#helpModal"><i class="bi bi-question-circle"></i></button>
+  </header>
+
+  <aside class="panel panel-left view-lab">
+    <div class="panel-head"><i class="bi bi-droplet-half lead"></i><span class="panel-title">Reagents</span><span class="panel-count" id="chemCount">0/0</span></div>
+    <div class="chem-toolbar">
+      <div class="chem-search"><i class="bi bi-search"></i><input type="text" id="chemSearch" placeholder="Tìm tên / công thức…" autocomplete="off"></div>
+      <div class="chem-filters" id="chemFilters"></div>
+    </div>
+    <div class="formula-workbench"><div class="instrument-rack-head"><span><i class="bi bi-calculator"></i> Tính & dựng phương trình</span><span class="hint">2 chất phản ứng</span></div><p class="formula-help">Nhập công thức hoặc tên chất. Bộ máy sẽ tra catalog, cân bằng phương trình và mô phỏng hiện tượng tương ứng.</p><div class="formula-inputs"><input id="calcReactantA" class="formula-input" value="HCl" placeholder="Chất A, ví dụ HCl"><span class="formula-plus">+</span><input id="calcReactantB" class="formula-input" value="NaOH" placeholder="Chất B, ví dụ NaOH"></div><button class="btn-u primary formula-run" id="btnBuildEquation"><i class="bi bi-bezier2"></i> Dựng phương trình</button><div class="formula-result" id="formulaResult"><div class="formula-result-label">Phương trình hóa học</div><div class="formula-equation" id="formulaEquation">HCl + NaOH → NaCl + H₂O</div><div class="formula-phenomenon" id="formulaPhenomenon">Trung hòa · tỏa nhiệt nhẹ</div></div><div class="live-measurements"><div class="measurement-head"><span><i class="bi bi-activity"></i> Đo realtime</span><span class="hint">đĩa petri</span></div><div id="liveReadouts" class="live-readouts"><div class="measurement-empty">Chưa có mẫu đo</div></div></div></div>
+    <div class="panel-body flush"><div class="chem-list" id="chemList"></div></div>
+  </aside>
+
+  <main class="panel panel-center view-lab">
+    <div class="viewport" id="viewport">
+      <div class="viewport-hud" id="viewportHud"></div>
+      <div class="viewport-hint">Kéo dụng cụ để di chuyển · Cuộn zoom · Kéo chất vào đây</div>
+      <div class="viewport-empty" id="viewportEmpty"><i class="bi bi-beaker"></i><p>Kéo hóa chất từ danh sách vào cốc</p></div>
+      <div class="viewport-drop-hint"><div><i class="bi bi-box-arrow-in-down"></i><p>THẢ VÀO ĐỂ THÊM VÀO ĐĨA PETRI</p></div></div><div class="stem-credit">ChemLab STEM Edition · Hoàng Mạnh Phước</div>
+    </div>
+    <div class="control-strip">
+      <div class="control-cell">
+        <div class="control-label"><span>Nhiệt độ</span><span class="control-value" id="valTemp">25 °C</span></div>
+        <input type="range" class="slider" id="rngTemp" min="0" max="100" step="1" value="25">
+      </div>
+      <div class="control-cell">
+        <div class="control-label"><span>Thể tích</span><span class="control-value" id="valVolume">200 mL</span></div>
+        <input type="range" class="slider" id="rngVolume" min="50" max="600" step="10" value="200">
+      </div>
+      <div class="control-cell">
+        <div class="control-label"><span>Hành động</span></div>
+        <div style="display:flex;gap:5px;">
+          <button class="btn-u primary" id="btnRun" style="flex:1;justify-content:center;" disabled><i class="bi bi-play-fill"></i> Tiến hành</button>
+          <button class="btn-u btn-icon" id="btnClear" title="Bỏ chọn"><i class="bi bi-x-lg"></i></button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="panel panel-right view-lab">
+    <div class="panel-head"><i class="bi bi-clipboard2-data lead"></i><span class="panel-title">Inspector</span><span class="panel-count" id="analysisCount">—</span></div>
+    <div class="right-tabs">
+      <button class="right-tab active" data-rtab="analysis"><i class="bi bi-graph-up"></i>Analysis</button>
+      <button class="right-tab" data-rtab="log"><i class="bi bi-journal-text"></i>Log</button>
+    </div>
+    <div class="tab-pane active" id="paneAnalysis"><div class="reagent-inspector" id="reagentInspector"><div class="inspector-empty"><i class="bi bi-cursor-fill"></i><span>Bấm một reagent để xem toàn bộ thông tin</span></div></div><div class="analysis" id="analysis"></div></div>
+    <div class="tab-pane" id="paneLog">
+      <table class="log-table">
+        <thead><tr><th>Time</th><th>Mix</th><th>Phenomenon</th><th>°C</th><th>pH</th><th>Verdict</th></tr></thead>
+        <tbody id="logBody"></tbody>
+      </table>
+      <div class="log-empty" id="logEmpty">Chưa có thí nghiệm nào</div>
+    </div>
+  </aside>
+
+  <aside class="panel panel-sandbox-tools view-sandbox"><div class="panel-head"><i class="bi bi-flask2 lead"></i><span class="panel-title">Chọn hóa chất</span><span class="panel-count" id="sandboxMaterialCount">0</span></div><div class="sandbox-tools-body"><div class="sandbox-credit"><strong>Sandbox Chemistry</strong><br>Chọn công thức thật rồi kéo lên bảng để xem chất rơi, trộn và phản ứng. Lấy cảm hứng từ <a href="https://github.com/R74nCom/sandboxels" target="_blank" rel="noreferrer">Sandboxels</a>.</div><div class="sandbox-row"><button class="btn-u primary" id="sandboxPause"><i class="bi bi-pause-fill"></i> Tạm dừng</button><button class="btn-u" id="sandboxReset"><i class="bi bi-arrow-counterclockwise"></i> Xóa bàn</button></div><div class="sandbox-row"><button class="btn-u sm" id="sandboxEraser"><i class="bi bi-eraser"></i> Tẩy</button><button class="btn-u sm" id="sandboxSample"><i class="bi bi-lightning-charge"></i> Mẫu HCl + NaOH</button></div><label class="sandbox-label">Cỡ cọ <span id="sandboxBrushValue">4</span></label><input id="sandboxBrush" class="slider" type="range" min="1" max="10" value="4"><div class="sandbox-palette-title">Hóa chất phổ biến</div><div class="sandbox-palette" id="sandboxPalette"></div></div></aside><main class="panel panel-sandbox-canvas view-sandbox"><div class="panel-head"><i class="bi bi-stars lead"></i><span class="panel-title">Chemistry Sandbox</span><span class="panel-count" id="sandboxStatus">Đang chạy</span></div><div class="sandbox-canvas-wrap"><canvas id="sandboxCanvas"></canvas><div class="sandbox-help">Kéo để rắc chất · Các chất tự rơi và phản ứng khi chạm nhau</div></div></main><aside class="panel panel-sandbox-info view-sandbox"><div class="panel-head"><i class="bi bi-activity lead"></i><span class="panel-title">Bảng quan sát</span></div><div class="sandbox-info-body"><div id="sandboxSelectedInfo" class="sandbox-selected-info">Chọn một công thức ở bên trái</div><div class="sandbox-stat-grid"><div><span>Hạt trên bàn</span><strong id="sandboxParticleCount">0</strong></div><div><span>Phản ứng</span><strong id="sandboxReactionCount">0</strong></div></div><div class="section-title"><i class="bi bi-bezier2"></i> Phương trình gần nhất</div><div id="sandboxEquation" class="sandbox-equation">Chưa có phản ứng</div><div class="section-title"><i class="bi bi-lightbulb"></i> Cách chơi</div><p class="sandbox-note">Chọn HCl, NaOH, Na₂CO₃, Zn, Fe, CuSO₄, H₂O₂ hoặc MnO₂. Rắc hai chất cạnh nhau để tạo hiện tượng và phương trình.</p><div class="sandbox-reaction-log" id="sandboxReactionLog">Chưa ghi nhận phản ứng</div></div></aside>
+
+  <aside class="panel panel-legend view-table">
+    <div class="panel-head"><i class="bi bi-palette lead"></i><span class="panel-title">Phân loại</span></div>
+    <div class="panel-body"><div class="legend-list" id="ptableLegend"></div></div>
+  </aside>
+
+  <main class="panel panel-ptable view-table">
+    <div class="panel-head"><i class="bi bi-grid-3x3-gap-fill lead"></i><span class="panel-title">Periodic Table of Elements</span><span class="panel-count" id="ptableCount">118 nguyên tố</span></div>
+    <div class="ptable-wrap"><div class="ptable-inner"><div class="ptable-grid" id="ptableGrid"></div></div></div>
+  </main>
+
+  <aside class="panel panel-element view-table">
+    <div class="panel-head"><i class="bi bi-info-circle lead"></i><span class="panel-title">Element Inspector</span><span class="panel-count" id="elCount">—</span></div>
+    <div class="panel-body"><div class="element-detail" id="elementDetail"></div></div>
+  </aside>
+
+  <main class="panel panel-practice view-practice">
+    <div class="panel-head"><i class="bi bi-mortarboard lead"></i><span class="panel-title">Practice Mode</span><span class="panel-count" id="practiceCount">—</span></div>
+    <div class="practice-wrap">
+      <div class="practice-card">
+        <div class="practice-head">
+          <i class="bi bi-lightning-charge-fill" style="color:var(--warn);"></i>
+          <h3>Cân bằng & Hoàn thành phương trình</h3>
+          <div class="meta" id="practiceMeta">Câu 1 / 12</div>
+        </div>
+        <div class="practice-body">
+          <div class="practice-progress" id="practiceProgress"></div>
+          <div class="practice-stats">
+            <div class="stat"><div class="k">Đúng</div><div class="v" id="statCorrect">0</div></div>
+            <div class="stat"><div class="k">Sai</div><div class="v" id="statWrong">0</div></div>
+            <div class="stat"><div class="k">Streak</div><div class="v" id="statStreak">0</div></div>
+          </div>
+          <div class="practice-q" id="practiceQ"></div>
+          <div class="practice-eq" id="practiceEq"></div>
+          <div class="palette-label">Chọn chất để điền vào ô trống</div>
+          <div class="palette" id="practicePalette"></div>
+          <div class="practice-actions">
+            <div class="practice-feedback info" id="practiceFeedback">Chọn một chất bên trên để bắt đầu</div>
+            <button class="btn-u" id="btnPracReset"><i class="bi bi-arrow-counterclockwise"></i> Làm lại</button>
+            <button class="btn-u primary" id="btnPracNext"><i class="bi bi-arrow-right"></i> Câu tiếp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="panel panel-side view-practice">
+    <div class="panel-head"><i class="bi bi-list-ol lead"></i><span class="panel-title">Bài tập</span><span class="panel-count" id="sideCount">—</span></div>
+    <div class="panel-body"><div class="side-list" id="practiceSide"></div></div>
+  </aside>
+
+  <footer class="app-status">
+    <span class="item"><span class="dot"></span><span id="statusMsg">Ready</span></span>
+    <span class="item"><i class="bi bi-cpu"></i><span id="statusDevice">WebGL</span></span>
+    <span class="spacer"></span>
+    <span class="item"><i class="bi bi-thermometer-half"></i><span id="statusTemp">25 °C</span></span>
+    <span class="item"><i class="bi bi-droplet"></i><span id="statusPh">pH 7.00</span></span>
+    <span class="item"><i class="bi bi-stack"></i><span id="statusCount">0 reagents</span></span>
+    <span class="item"><i class="bi bi-clock"></i><span id="statusTime">--:--:--</span></span>
+  </footer>
+</div>
+
+<div class="modal fade" id="libraryModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-collection-play" style="color:var(--accent);"></i> Thư viện thí nghiệm phổ thông</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="library-intro">Chọn một bài mẫu để nạp nhanh hóa chất, nhiệt độ và thể tích vào đĩa petri. Hãy quan sát phương trình ở sidebar rồi nhấn <strong>Tiến hành</strong>.</p><div class="library-grid" id="experimentLibrary"></div></div></div></div></div>
+
+<div class="modal fade" id="compoundModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-diagram-3" style="color:var(--accent);"></i> Kho hợp chất vô cơ & hữu cơ</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="compound-toolbar"><div class="chem-search"><i class="bi bi-search"></i><input id="compoundSearch" placeholder="Tìm công thức, tên hoặc loại cấu trúc…" autocomplete="off"></div><span class="panel-count" id="compoundCount"></span></div><div class="compound-layout"><div class="compound-list" id="compoundList"></div><div class="compound-detail" id="compoundDetail"><div class="measurement-empty">Chọn hợp chất để xem biểu diễn.</div></div></div></div></div></div></div>
+
+
+<div class="modal fade" id="reactionModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-lightning-charge" style="color:var(--accent);"></i> Kho hàng nghìn phản ứng hóa học</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="reaction-library-intro">Tra cứu các phương trình được tạo từ bộ quy tắc cân bằng và độ tan. Dữ liệu dùng cho học tập; điều kiện thực tế, nồng độ và tốc độ phản ứng cần được kiểm chứng trong tài liệu chuyên môn.</p><div class="reaction-toolbar"><div class="chem-search"><i class="bi bi-search"></i><input id="reactionSearch" placeholder="Tìm chất, phương trình hoặc loại phản ứng…" autocomplete="off"></div><select id="reactionTypeFilter" class="reaction-filter"><option value="all">Tất cả loại phản ứng</option><option value="Trung hòa">Trung hòa</option><option value="Axit + cacbonat">Axit + cacbonat</option><option value="Trao đổi tạo kết tủa">Trao đổi tạo kết tủa</option><option value="Thế đơn">Thế đơn</option><option value="Phân hủy nhiệt">Phân hủy nhiệt</option><option value="Cháy">Cháy</option></select><span class="panel-count" id="reactionLibraryCount"></span></div><div class="reaction-library-layout"><div class="reaction-library-list" id="reactionLibraryList"></div><div class="reaction-library-detail" id="reactionLibraryDetail"><div class="measurement-empty">Chọn một phản ứng để xem chi tiết.</div></div></div></div></div></div></div>
+
+
+<div class="modal fade" id="quantModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-calculator" style="color:var(--accent);"></i> Máy tính định lượng phản ứng</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="pwa-strip"><strong>Định luật tỉ lượng:</strong> nᵢ / hệ sốᵢ = ξ. Nhập một lượng chất đã biết để tính mol, khối lượng, thể tích khí và thể tích dung dịch sản phẩm.</div><div class="quant-field"><label>Phản ứng cân bằng</label><select id="quantReaction" class="knowledge-select"></select></div><div id="quantEquation" class="quant-equation"></div><div class="quant-grid"><div class="quant-field"><label>Chất đã biết</label><select id="quantKnown" class="knowledge-select"></select></div><div class="quant-field"><label>Chất cần tính</label><select id="quantTarget" class="knowledge-select"></select></div><div class="quant-field"><label>Lượng chất đã biết</label><input id="quantAmount" type="number" min="0" step="any" value="0.100"></div><div class="quant-field"><label>Đơn vị lượng nhập</label><select id="quantUnit" class="knowledge-select"><option value="mol">mol</option><option value="g">g</option><option value="mL">mL dung dịch</option><option value="L">L khí (25°C, 1 atm)</option></select></div><div class="quant-field"><label>Nồng độ dung dịch (M), nếu có</label><input id="quantConcentration" type="number" min="0" step="any" value="1.000"></div><div class="quant-field"><label>Nồng độ đích (M), tùy chọn</label><input id="quantTargetConcentration" type="number" min="0" step="any" value="1.000"></div></div><div class="quant-actions"><button class="btn-u primary" id="btnQuantCalc"><i class="bi bi-play-fill"></i> Tính toán</button><span id="quantHint" style="font-size:10px;color:var(--txt-3)"></span></div><div id="quantResult" class="quant-result"><div class="qv"><div class="qk">Kết quả</div><div class="qnum">Chưa tính</div></div></div></div></div></div></div>
+<div class="modal fade" id="advancedChemModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-shuffle" style="color:var(--accent);"></i> Cân bằng ion rút gọn & oxi hóa–khử</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="pwa-strip"><strong>Phương pháp ion–electron:</strong> tách bán phản ứng, cân bằng nguyên tố và điện tích bằng H₂O/H⁺ (môi trường axit) hoặc OH⁻ (môi trường bazơ), rồi triệt tiêu electron.</div><div class="redox-layout"><div><div class="section-title" style="margin-top:0"><i class="bi bi-lightning-charge"></i> Oxi hóa–khử nâng cao</div><div id="redoxList" class="redox-list"></div></div><div id="redoxDetail" class="redox-detail"><div class="measurement-empty">Chọn phản ứng để xem số oxi hóa, electron và hai bán phản ứng.</div></div></div><div class="section-title"><i class="bi bi-diagram-3"></i> Cân bằng ion rút gọn</div><div class="ion-layout"><div id="ionList" class="ion-list"></div><div id="ionDetail" class="ion-detail"><div class="measurement-empty">Chọn một phản ứng ion.</div></div></div></div></div></div></div>
+<div class="modal fade" id="knowledgeModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title"><i class="bi bi-book-half" style="color:var(--accent);"></i> Kiến thức MT2 tích hợp</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="pwa-strip"><strong>Nguồn kiến thức:</strong> MT2 gồm 11 chương tiếng Việt/Anh, CSDL 105 phản ứng, 127 chất và 103 nguyên tố. Nội dung dưới đây được tóm tắt để dùng trực tiếp trong ChemLab.</div><div class="knowledge-card"><h6>Định lượng và dung dịch · Chương I, VII</h6><p>n = m/M; C<sub>M</sub> = n/V; C% = m<sub>ct</sub>/m<sub>dd</sub> × 100%; với phản ứng aA + bB → sản phẩm: n(A)/a = n(B)/b = ξ. Định luật đương lượng: V<sub>A</sub>N<sub>A</sub> = V<sub>B</sub>N<sub>B</sub>.</p></div><div class="knowledge-card"><h6>Điện li và ion rút gọn · Chương VIII</h6><p>Trong dung dịch, chất điện li phân li thành ion. Phương trình ion rút gọn chỉ giữ các tiểu phân thực sự tham gia; ion khán giả được triệt tiêu hai vế.</p></div><div class="knowledge-card"><h6>Oxi hóa–khử và điện hóa · Chương X</h6><ul><li>Chất khử nhường electron, số oxi hóa tăng.</li><li>Chất oxi hóa nhận electron, số oxi hóa giảm.</li><li>Tổng electron nhường = tổng electron nhận.</li><li>E<sub>pin</sub> = E<sub>catot</sub> − E<sub>anot</sub>; E°<sub>pin</sub> &gt; 0 gợi ý chiều tự phát ở điều kiện chuẩn.</li></ul></div><div class="knowledge-card"><h6>Chương còn lại trong MT2</h6><p>Khái niệm và định luật cơ bản; cấu tạo nguyên tử; liên kết hóa học; nhiệt động học; động hóa học; cân bằng hóa học; hóa keo; phụ lục nhiệt hóa học. Dữ liệu gốc vẫn được giữ trong gói MT2 người dùng cung cấp.</p></div></div></div></div></div>
+
+<div class="modal fade" id="helpModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title"><i class="bi bi-book" style="color:var(--accent);"></i> Cơ sở lý thuyết</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <h6>1. Loại phản ứng chính</h6>
+        <ul>
+          <li><strong>Trung hòa:</strong> <code>HCl + NaOH → NaCl + H₂O</code></li>
+          <li><strong>Trao đổi:</strong> <code>AgNO₃ + NaCl → AgCl↓ + NaNO₃</code></li>
+          <li><strong>Kim loại + axit:</strong> <code>Zn + 2HCl → ZnCl₂ + H₂↑</code></li>
+          <li><strong>Đẩy kim loại:</strong> <code>Fe + CuSO₄ → FeSO₄ + Cu↓</code></li>
+          <li><strong>Axit + cacbonat:</strong> <code>2HCl + Na₂CO₃ → 2NaCl + H₂O + CO₂↑</code></li>
+          <li><strong>Oxi hóa – khử:</strong> <code>2KMnO₄ + 16HCl → 2KCl + 2MnCl₂ + 5Cl₂↑ + 8H₂O</code></li>
+        </ul>
+        <h6>2. Drag & Drop 3D</h6>
+        <p>Kéo một chất từ danh sách bên trái vào khung 3D. Model hiển thị theo dạng chất: <strong>rắn</strong> (khối đa diện), <strong>bột</strong> (hạt mịn), <strong>dung dịch</strong> (giọt lỏng), <strong>khí</strong> (mây mờ).</p>
+        <h6>3. Lửa & Nổ</h6>
+        <p>Phản ứng tỏa nhiệt sẽ có lửa bốc lên bề mặt. Phản ứng nguy hiểm (Cl₂, H₂S) sẽ <strong>phát nổ</strong>: sóng xung kích + tia lửa + rung camera.</p>
+        <h6>4. Tính công thức & dựng phương trình</h6><p>Nhập hai công thức vào ô <strong>Tính & dựng phương trình</strong>. Hệ thống tra catalog, dựng phương trình đã cân bằng và hiển thị hiện tượng mô phỏng tương ứng; các chất chưa có quy tắc sẽ được báo rõ để tránh khẳng định sai.</p><h6>5. Mô hình đĩa petri & đo realtime</h6><p>Đĩa petri giữ kích thước cố định. Khi đổi thể tích, mặt chất lỏng phẳng dâng/hạ theo thể tích; không còn hình trụ màu xám che mẫu. Bảng <strong>Đo realtime</strong> hiển thị nhiệt độ và pH của mẫu hiện tại.</p><h6>6. Hiệu suất mobile</h6><p>Thiết bị yếu tự động chuyển sang chất lượng low-power: giảm khử răng cưa, pixel ratio, bóng đổ và số polygon nhưng vẫn giữ tương tác chính.</p><h6>7. Sandbox & kho hợp chất</h6><p>Sandbox mô phỏng dạng hạt tự do với nhiệt, mật độ và phản ứng tiếp xúc. Kho hợp chất có catalog sinh tự động cho hàng nghìn mục vô cơ, hữu cơ và polymer, kèm chuỗi ngang, chuỗi polymer và vòng lục giác minh họa.</p><p class="small text-secondary">Tham chiếu kiến trúc falling-sand: <a href="https://github.com/R74nCom/sandboxels" target="_blank" rel="noreferrer">R74nCom/Sandboxels</a>. Mã nguồn gốc thuộc R74n và tuân theo R74n Content License 1.1; ChemLab giữ credit và không xóa thông báo license.</p><h6>8. Markdown Export</h6><p>Nhấn <code>Export .md</code> để tải log kèm phương trình hóa học.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}</script>
+<script type="module" src="./js/app.js"></script>
+<script src="./js/pwa.js" defer></script>
+</body>
+</html>
