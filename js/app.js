@@ -1,0 +1,1264 @@
+
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ============================================================
+   ELEMENTS
+   ============================================================ */
+const ELEMENTS=[
+[1,'H','Hiđro','Hydrogen',1.008,'nm',1,1,'k','1s¹',2.20,-259.1,-252.9,0.00009,'-1,+1','Cavendish 1766'],
+[2,'He','Heli','Helium',4.0026,'ng',1,18,'k','1s²',null,-272.2,-268.9,0.00018,'0','Janssen 1868'],
+[3,'Li','Liti','Lithium',6.94,'am',2,1,'r','[He]2s¹',0.98,180.5,1342,0.534,'+1','Arfwedson 1817'],
+[4,'Be','Beri','Beryllium',9.0122,'ae',2,2,'r','[He]2s²',1.57,1287,2469,1.85,'+2','Vauquelin 1798'],
+[5,'B','Bo','Boron',10.81,'ml',2,13,'r','[He]2s²2p¹',2.04,2076,3927,2.34,'+3','Gay-Lussac 1808'],
+[6,'C','Cacbon','Carbon',12.011,'nm',2,14,'r','[He]2s²2p²',2.55,3550,4027,2.267,'-4,+2,+4','Cổ đại'],
+[7,'N','Nitơ','Nitrogen',14.007,'nm',2,15,'k','[He]2s²2p³',3.04,-210.0,-195.8,0.00125,'-3,+3,+5','Rutherford 1772'],
+[8,'O','Oxi','Oxygen',15.999,'nm',2,16,'k','[He]2s²2p⁴',3.44,-218.8,-183.0,0.00143,'-2','Priestley 1774'],
+[9,'F','Flo','Fluorine',18.998,'hl',2,17,'k','[He]2s²2p⁵',3.98,-219.7,-188.1,0.0017,'-1','Moissan 1886'],
+[10,'Ne','Neon','Neon',20.180,'ng',2,18,'k','[He]2s²2p⁶',null,-248.6,-246.1,0.0009,'0','Ramsay 1898'],
+[11,'Na','Natri','Sodium',22.990,'am',3,1,'r','[Ne]3s¹',0.93,97.8,883,0.971,'+1','Davy 1807'],
+[12,'Mg','Magie','Magnesium',24.305,'ae',3,2,'r','[Ne]3s²',1.31,650,1090,1.738,'+2','Black 1755'],
+[13,'Al','Nhôm','Aluminium',26.982,'pt',3,13,'r','[Ne]3s²3p¹',1.61,660.3,2519,2.70,'+3','Ørsted 1825'],
+[14,'Si','Silic','Silicon',28.085,'ml',3,14,'r','[Ne]3s²3p²',1.90,1414,3265,2.33,'-4,+4','Berzelius 1824'],
+[15,'P','Photpho','Phosphorus',30.974,'nm',3,15,'r','[Ne]3s²3p³',2.19,44.2,280.5,1.82,'-3,+3,+5','Brand 1669'],
+[16,'S','Lưu huỳnh','Sulfur',32.06,'nm',3,16,'r','[Ne]3s²3p⁴',2.58,115.2,444.7,2.07,'-2,+4,+6','Cổ đại'],
+[17,'Cl','Clo','Chlorine',35.45,'hl',3,17,'k','[Ne]3s²3p⁵',3.16,-101.5,-34.0,0.0032,'-1,+1,+5,+7','Scheele 1774'],
+[18,'Ar','Agon','Argon',39.948,'ng',3,18,'k','[Ne]3s²3p⁶',null,-189.3,-185.8,0.0018,'0','Rayleigh 1894'],
+[19,'K','Kali','Potassium',39.098,'am',4,1,'r','[Ar]4s¹',0.82,63.4,759,0.862,'+1','Davy 1807'],
+[20,'Ca','Canxi','Calcium',40.078,'ae',4,2,'r','[Ar]4s²',1.00,842,1484,1.55,'+2','Davy 1808'],
+[21,'Sc','Scandi','Scandium',44.956,'tm',4,3,'r','[Ar]3d¹4s²',1.36,1541,2836,2.99,'+3','Nilson 1879'],
+[22,'Ti','Titan','Titanium',47.867,'tm',4,4,'r','[Ar]3d²4s²',1.54,1668,3287,4.51,'+2,+3,+4','Gregor 1791'],
+[23,'V','Vanadi','Vanadium',50.942,'tm',4,5,'r','[Ar]3d³4s²',1.63,1910,3407,6.11,'+2,+3,+4,+5','Sefström 1830'],
+[24,'Cr','Crom','Chromium',51.996,'tm',4,6,'r','[Ar]3d⁵4s¹',1.66,1907,2671,7.15,'+2,+3,+6','Vauquelin 1797'],
+[25,'Mn','Mangan','Manganese',54.938,'tm',4,7,'r','[Ar]3d⁵4s²',1.55,1246,2061,7.30,'+2,+4,+6,+7','Gahn 1774'],
+[26,'Fe','Sắt','Iron',55.845,'tm',4,8,'r','[Ar]3d⁶4s²',1.83,1538,2862,7.87,'+2,+3','Cổ đại'],
+[27,'Co','Coban','Cobalt',58.933,'tm',4,9,'r','[Ar]3d⁷4s²',1.88,1495,2927,8.86,'+2,+3','Brandt 1735'],
+[28,'Ni','Niken','Nickel',58.693,'tm',4,10,'r','[Ar]3d⁸4s²',1.91,1455,2913,8.91,'+2,+3','Cronstedt 1751'],
+[29,'Cu','Đồng','Copper',63.546,'tm',4,11,'r','[Ar]3d¹⁰4s¹',1.90,1085,2562,8.96,'+1,+2','Cổ đại'],
+[30,'Zn','Kẽm','Zinc',65.38,'tm',4,12,'r','[Ar]3d¹⁰4s²',1.65,419.5,907,7.13,'+2','Cổ đại'],
+[31,'Ga','Gali','Gallium',69.723,'pt',4,13,'r','[Ar]3d¹⁰4s²4p¹',1.81,29.8,2204,5.91,'+3','Boisbaudran 1875'],
+[32,'Ge','Gecmani','Germanium',72.630,'ml',4,14,'r','[Ar]3d¹⁰4s²4p²',2.01,938.3,2833,5.32,'-4,+2,+4','Winkler 1886'],
+[33,'As','Asen','Arsenic',74.922,'ml',4,15,'r','[Ar]3d¹⁰4s²4p³',2.18,817,614,5.73,'-3,+3,+5','Albertus 1250'],
+[34,'Se','Selen','Selenium',78.971,'nm',4,16,'r','[Ar]3d¹⁰4s²4p⁴',2.55,221,685,4.81,'-2,+4,+6','Berzelius 1817'],
+[35,'Br','Brom','Bromine',79.904,'hl',4,17,'l','[Ar]3d¹⁰4s²4p⁵',2.96,-7.2,58.8,3.12,'-1,+1,+5','Balard 1826'],
+[36,'Kr','Kripton','Krypton',83.798,'ng',4,18,'k','[Ar]3d¹⁰4s²4p⁶',3.00,-157.4,-153.2,0.0037,'0,+2','Ramsay 1898'],
+[37,'Rb','Rubidi','Rubidium',85.468,'am',5,1,'r','[Kr]5s¹',0.82,39.3,688,1.53,'+1','Bunsen 1861'],
+[38,'Sr','Stronti','Strontium',87.62,'ae',5,2,'r','[Kr]5s²',0.95,777,1382,2.64,'+2','Davy 1808'],
+[39,'Y','Ytri','Yttrium',88.906,'tm',5,3,'r','[Kr]4d¹5s²',1.22,1526,3336,4.47,'+3','Gadolin 1794'],
+[40,'Zr','Ziriconi','Zirconium',91.224,'tm',5,4,'r','[Kr]4d²5s²',1.33,1855,4409,6.52,'+4','Klaproth 1789'],
+[41,'Nb','Niobi','Niobium',92.906,'tm',5,5,'r','[Kr]4d⁴5s¹',1.6,2477,4744,8.57,'+3,+5','Hatchett 1801'],
+[42,'Mo','Molipden','Molybdenum',95.95,'tm',5,6,'r','[Kr]4d⁵5s¹',2.16,2623,4639,10.28,'+2,+4,+6','Scheele 1778'],
+[43,'Tc','Tecneti','Technetium',98,'tm',5,7,'r','[Kr]4d⁵5s²',1.9,2157,4265,11.5,'+4,+7','Perrier 1937'],
+[44,'Ru','Ruteni','Ruthenium',101.07,'tm',5,8,'r','[Kr]4d⁷5s¹',2.2,2334,4150,12.37,'+2,+3,+4','Klaus 1844'],
+[45,'Rh','Rodi','Rhodium',102.91,'tm',5,9,'r','[Kr]4d⁸5s¹',2.28,1964,3695,12.41,'+3','Wollaston 1803'],
+[46,'Pd','Paladi','Palladium',106.42,'tm',5,10,'r','[Kr]4d¹⁰',2.20,1554.9,2963,12.02,'+2,+4','Wollaston 1802'],
+[47,'Ag','Bạc','Silver',107.87,'tm',5,11,'r','[Kr]4d¹⁰5s¹',1.93,961.8,2162,10.49,'+1','Cổ đại'],
+[48,'Cd','Cadimi','Cadmium',112.41,'tm',5,12,'r','[Kr]4d¹⁰5s²',1.69,321.1,767,8.65,'+2','Stromeyer 1817'],
+[49,'In','Indi','Indium',114.82,'pt',5,13,'r','[Kr]4d¹⁰5s²5p¹',1.78,156.6,2072,7.31,'+3','Reich 1863'],
+[50,'Sn','Thiếc','Tin',118.71,'pt',5,14,'r','[Kr]4d¹⁰5s²5p²',1.96,231.9,2602,7.31,'+2,+4','Cổ đại'],
+[51,'Sb','Antimon','Antimony',121.76,'ml',5,15,'r','[Kr]4d¹⁰5s²5p³',2.05,630.6,1587,6.68,'-3,+3,+5','Cổ đại'],
+[52,'Te','Telu','Tellurium',127.60,'ml',5,16,'r','[Kr]4d¹⁰5s²5p⁴',2.1,449.5,988,6.24,'-2,+4,+6','Müller 1782'],
+[53,'I','Iot','Iodine',126.90,'hl',5,17,'r','[Kr]4d¹⁰5s²5p⁵',2.66,113.7,184.3,4.93,'-1,+1,+5,+7','Courtois 1811'],
+[54,'Xe','Xenon','Xenon',131.29,'ng',5,18,'k','[Kr]4d¹⁰5s²5p⁶',2.60,-111.8,-108.1,0.0059,'0,+2,+4,+6','Ramsay 1898'],
+[55,'Cs','Xesi','Caesium',132.91,'am',6,1,'r','[Xe]6s¹',0.79,28.4,671,1.93,'+1','Bunsen 1860'],
+[56,'Ba','Bari','Barium',137.33,'ae',6,2,'r','[Xe]6s²',0.89,727,1897,3.51,'+2','Davy 1808'],
+[57,'La','Lantan','Lanthanum',138.91,'ln',6,3,'r','[Xe]5d¹6s²',1.10,918,3464,6.15,'+3','Mosander 1839'],
+[58,'Ce','Xeri','Cerium',140.12,'ln',6,4,'r','[Xe]4f¹5d¹6s²',1.12,795,3443,6.77,'+3,+4','Berzelius 1803'],
+[59,'Pr','Praseodim','Praseodymium',140.91,'ln',6,5,'r','[Xe]4f³6s²',1.13,935,3520,6.77,'+3','Auer 1885'],
+[60,'Nd','Neodim','Neodymium',144.24,'ln',6,6,'r','[Xe]4f⁴6s²',1.14,1024,3074,7.01,'+3','Auer 1885'],
+[61,'Pm','Prometi','Promethium',145,'ln',6,7,'r','[Xe]4f⁵6s²',1.13,1042,3000,7.26,'+3','Marinsky 1945'],
+[62,'Sm','Samari','Samarium',150.36,'ln',6,8,'r','[Xe]4f⁶6s²',1.17,1072,1794,7.52,'+3','Boisbaudran 1879'],
+[63,'Eu','Europi','Europium',151.96,'ln',6,9,'r','[Xe]4f⁷6s²',1.2,826,1529,5.24,'+2,+3','Demarçay 1901'],
+[64,'Gd','Gadolini','Gadolinium',157.25,'ln',6,10,'r','[Xe]4f⁷5d¹6s²',1.2,1313,3273,7.90,'+3','Marignac 1880'],
+[65,'Tb','Terbi','Terbium',158.93,'ln',6,11,'r','[Xe]4f⁹6s²',1.2,1356,3230,8.23,'+3','Mosander 1843'],
+[66,'Dy','Dysprosi','Dysprosium',162.50,'ln',6,12,'r','[Xe]4f¹⁰6s²',1.22,1407,2567,8.55,'+3','Boisbaudran 1886'],
+[67,'Ho','Holmi','Holmium',164.93,'ln',6,13,'r','[Xe]4f¹¹6s²',1.23,1461,2720,8.80,'+3','Delafontaine 1878'],
+[68,'Er','Erbi','Erbium',167.26,'ln',6,14,'r','[Xe]4f¹²6s²',1.24,1529,2868,9.07,'+3','Mosander 1843'],
+[69,'Tm','Tuli','Thulium',168.93,'ln',6,15,'r','[Xe]4f¹³6s²',1.25,1545,1950,9.32,'+3','Cleve 1879'],
+[70,'Yb','Ytterbi','Ytterbium',173.05,'ln',6,16,'r','[Xe]4f¹⁴6s²',1.1,824,1196,6.90,'+2,+3','Marignac 1878'],
+[71,'Lu','Luteti','Lutetium',174.97,'ln',6,17,'r','[Xe]4f¹⁴5d¹6s²',1.27,1652,3402,9.84,'+3','Urbain 1907'],
+[72,'Hf','Hafni','Hafnium',178.49,'tm',6,4,'r','[Xe]4f¹⁴5d²6s²',1.3,2233,4603,13.31,'+4','Coster 1923'],
+[73,'Ta','Tantal','Tantalum',180.95,'tm',6,5,'r','[Xe]4f¹⁴5d³6s²',1.5,3017,5458,16.65,'+5','Ekeberg 1802'],
+[74,'W','Vonfram','Tungsten',183.84,'tm',6,6,'r','[Xe]4f¹⁴5d⁴6s²',2.36,3422,5555,19.25,'+4,+6','Elhuyar 1783'],
+[75,'Re','Rheni','Rhenium',186.21,'tm',6,7,'r','[Xe]4f¹⁴5d⁵6s²',1.9,3186,5596,21.02,'+4,+7','Noddack 1925'],
+[76,'Os','Osmi','Osmium',190.23,'tm',6,8,'r','[Xe]4f¹⁴5d⁶6s²',2.2,3033,5012,22.59,'+4,+8','Tennant 1803'],
+[77,'Ir','Iridi','Iridium',192.22,'tm',6,9,'r','[Xe]4f¹⁴5d⁷6s²',2.20,2446,4428,22.56,'+3,+4','Tennant 1803'],
+[78,'Pt','Platin','Platinum',195.08,'tm',6,10,'r','[Xe]4f¹⁴5d⁹6s¹',2.28,1768.3,3825,21.45,'+2,+4','Ulloa 1735'],
+[79,'Au','Vàng','Gold',196.97,'tm',6,11,'r','[Xe]4f¹⁴5d¹⁰6s¹',2.54,1064.2,2856,19.32,'+1,+3','Cổ đại'],
+[80,'Hg','Thủy ngân','Mercury',200.59,'tm',6,12,'l','[Xe]4f¹⁴5d¹⁰6s²',2.00,-38.8,356.7,13.53,'+1,+2','Cổ đại'],
+[81,'Tl','Tali','Thallium',204.38,'pt',6,13,'r','[Xe]4f¹⁴5d¹⁰6s²6p¹',1.62,304,1473,11.85,'+1,+3','Crookes 1861'],
+[82,'Pb','Chì','Lead',207.2,'pt',6,14,'r','[Xe]4f¹⁴5d¹⁰6s²6p²',2.33,327.5,1749,11.34,'+2,+4','Cổ đại'],
+[83,'Bi','Bitmut','Bismuth',208.98,'pt',6,15,'r','[Xe]4f¹⁴5d¹⁰6s²6p³',2.02,271.4,1564,9.81,'+3','Geoffroy 1753'],
+[84,'Po','Poloni','Polonium',209,'pt',6,16,'r','[Xe]4f¹⁴5d¹⁰6s²6p⁴',2.0,254,962,9.20,'+2,+4','Curie 1898'],
+[85,'At','Astatin','Astatine',210,'hl',6,17,'r','[Xe]4f¹⁴5d¹⁰6s²6p⁵',2.2,302,337,7,'-1,+1','Corson 1940'],
+[86,'Rn','Radon','Radon',222,'ng',6,18,'k','[Xe]4f¹⁴5d¹⁰6s²6p⁶',2.2,-71,-61.7,0.00973,'0','Dorn 1900'],
+[87,'Fr','Franxi','Francium',223,'am',7,1,'r','[Rn]7s¹',0.7,27,677,1.87,'+1','Perey 1939'],
+[88,'Ra','Radi','Radium',226,'ae',7,2,'r','[Rn]7s²',0.9,700,1737,5.5,'+2','Curie 1898'],
+[89,'Ac','Actini','Actinium',227,'an',7,3,'r','[Rn]6d¹7s²',1.1,1050,3200,10.07,'+3','Debierne 1899'],
+[90,'Th','Thori','Thorium',232.04,'an',7,4,'r','[Rn]6d²7s²',1.3,1750,4788,11.72,'+4','Berzelius 1829'],
+[91,'Pa','Protactini','Protactinium',231.04,'an',7,5,'r','[Rn]5f²6d¹7s²',1.5,1568,4027,15.37,'+5','Hahn 1913'],
+[92,'U','Urani','Uranium',238.03,'an',7,6,'r','[Rn]5f³6d¹7s²',1.38,1135,4131,18.95,'+4,+6','Klaproth 1789'],
+[93,'Np','Neptuni','Neptunium',237,'an',7,7,'r','[Rn]5f⁴6d¹7s²',1.36,644,3902,20.45,'+5','McMillan 1940'],
+[94,'Pu','Plutoni','Plutonium',244,'an',7,8,'r','[Rn]5f⁶7s²',1.28,640,3228,19.84,'+4','Seaborg 1940'],
+[95,'Am','Americi','Americium',243,'an',7,9,'r','[Rn]5f⁷7s²',1.13,1176,2607,13.69,'+3','Seaborg 1944'],
+[96,'Cm','Curi','Curium',247,'an',7,10,'r','[Rn]5f⁷6d¹7s²',1.28,1340,3110,13.51,'+3','Seaborg 1944'],
+[97,'Bk','Berkeli','Berkelium',247,'an',7,11,'r','[Rn]5f⁹7s²',1.3,986,2627,14.79,'+3','Seaborg 1949'],
+[98,'Cf','Californi','Californium',251,'an',7,12,'r','[Rn]5f¹⁰7s²',1.3,900,1472,15.1,'+3','Seaborg 1950'],
+[99,'Es','Einsteini','Einsteinium',252,'an',7,13,'r','[Rn]5f¹¹7s²',1.3,860,996,8.84,'+3','Ghiorso 1952'],
+[100,'Fm','Fermi','Fermium',257,'an',7,14,'r','[Rn]5f¹²7s²',1.3,1527,null,null,'+3','Ghiorso 1952'],
+[101,'Md','Mendelevi','Mendelevium',258,'an',7,15,'r','[Rn]5f¹³7s²',1.3,827,null,null,'+2,+3','Ghiorso 1955'],
+[102,'No','Nobeli','Nobelium',259,'an',7,16,'r','[Rn]5f¹⁴7s²',1.3,827,null,null,'+2,+3','Ghiorso 1958'],
+[103,'Lr','Lawrenci','Lawrencium',266,'an',7,17,'r','[Rn]5f¹⁴7s²7p¹',1.3,1627,null,null,'+3','Ghiorso 1961'],
+[104,'Rf','Rutherfordi','Rutherfordium',267,'tm',7,4,'t','[Rn]5f¹⁴6d²7s²',null,2100,5500,23.2,'+4','Dubna 1964'],
+[105,'Db','Dubni','Dubnium',268,'tm',7,5,'t','[Rn]5f¹⁴6d³7s²',null,null,null,29.3,'+5','Dubna 1967'],
+[106,'Sg','Seaborgi','Seaborgium',269,'tm',7,6,'t','[Rn]5f¹⁴6d⁴7s²',null,null,null,35.0,'+6','Berkeley 1974'],
+[107,'Bh','Bohri','Bohrium',270,'tm',7,7,'t','[Rn]5f¹⁴6d⁵7s²',null,null,null,37.1,'+7','GSI 1981'],
+[108,'Hs','Hassi','Hassium',269,'tm',7,8,'t','[Rn]5f¹⁴6d⁶7s²',null,null,null,40.7,'+8','GSI 1984'],
+[109,'Mt','Meitneri','Meitnerium',278,'un',7,9,'t','[Rn]5f¹⁴6d⁷7s²',null,null,null,37.4,null,'GSI 1982'],
+[110,'Ds','Darmstadti','Darmstadtium',281,'un',7,10,'t','[Rn]5f¹⁴6d⁸7s²',null,null,null,34.8,null,'GSI 1994'],
+[111,'Rg','Roentgeni','Roentgenium',282,'un',7,11,'t','[Rn]5f¹⁴6d⁹7s²',null,null,null,28.7,null,'GSI 1994'],
+[112,'Cn','Copernici','Copernicium',285,'tm',7,12,'t','[Rn]5f¹⁴6d¹⁰7s²',null,null,357,23.7,'+2','GSI 1996'],
+[113,'Nh','Nihoni','Nihonium',286,'un',7,13,'t','[Rn]5f¹⁴6d¹⁰7s²7p¹',null,430,1130,16,'+1','RIKEN 2004'],
+[114,'Fl','Flerovi','Flerovium',289,'un',7,14,'t','[Rn]5f¹⁴6d¹⁰7s²7p²',null,null,420,14,'+2','Dubna 1999'],
+[115,'Mc','Moscovi','Moscovium',290,'un',7,15,'t','[Rn]5f¹⁴6d¹⁰7s²7p³',null,670,1400,13.5,'+1','Dubna 2003'],
+[116,'Lv','Livermori','Livermorium',293,'un',7,16,'t','[Rn]5f¹⁴6d¹⁰7s²7p⁴',null,637,1085,12.9,'+2','Dubna 2000'],
+[117,'Ts','Tennessin','Tennessine',294,'un',7,17,'t','[Rn]5f¹⁴6d¹⁰7s²7p⁵',null,477,883,7.2,'-1','Dubna 2010'],
+[118,'Og','Oganesson','Oganesson',294,'un',7,18,'t','[Rn]5f¹⁴6d¹⁰7s²7p⁶',null,52,177,5.0,'0','Dubna 2002']
+];
+const ELEM_CATEGORIES={am:{label:'Kim loại kiềm',color:'#f87171'},ae:{label:'Kim loại kiềm thổ',color:'#fb923c'},tm:{label:'Kim loại chuyển tiếp',color:'#facc15'},pt:{label:'Kim loại sau chuyển tiếp',color:'#a3e635'},ml:{label:'Á kim',color:'#2dd4bf'},nm:{label:'Phi kim',color:'#60a5fa'},hl:{label:'Halogen',color:'#22d3ee'},ng:{label:'Khí hiếm',color:'#c084fc'},ln:{label:'Lanthanide',color:'#f472b6'},an:{label:'Actinide',color:'#e879f9'},un:{label:'Chưa xác định',color:'#94a3b8'}};
+const STATE_LABEL={r:'Rắn',l:'Lỏng',k:'Khí',t:'Tổng hợp'};
+
+const COMPOUNDS={
+  H:[['H₂O','Nước','oxide'],['H₂O₂','Hiđro peroxit','peroxide'],['HCl','Axit clohidric','acid'],['H₂SO₄','Axit sunfuric','acid'],['HNO₃','Axit nitric','acid'],['NH₃','Amoniac','base'],['CH₄','Metan','organic']],
+  Na:[['NaCl','Natri clorua','salt'],['NaOH','Natri hidroxit','base'],['Na₂CO₃','Natri cacbonat','salt'],['NaHCO₃','Natri hidrocacbonat','salt'],['Na₂SO₄','Natri sunfat','salt'],['NaNO₃','Natri nitrat','salt'],['Na₂O','Natri oxit','oxide'],['Na₂O₂','Natri peroxit','peroxide']],
+  Mg:[['MgO','Magie oxit','oxide'],['Mg(OH)₂','Magie hidroxit','base'],['MgCl₂','Magie clorua','salt'],['MgSO₄','Magie sunfat','salt'],['MgCO₃','Magie cacbonat','salt']],
+  Al:[['Al₂O₃','Nhôm oxit','oxide'],['Al(OH)₃','Nhôm hidroxit','base'],['AlCl₃','Nhôm clorua','salt'],['Al₂(SO₄)₃','Nhôm sunfat','salt'],['NaAlO₂','Natri aluminat','salt']],
+  Si:[['SiO₂','Silic đioxit','oxide'],['Na₂SiO₃','Natri silicat','salt'],['SiC','Cacborun','other'],['H₂SiO₃','Axit silicic','acid']],
+  P:[['H₃PO₄','Axit photphoric','acid'],['P₂O₅','Photpho pentoxit','oxide'],['Ca₃(PO₄)₂','Canxi photphat','salt'],['Na₃PO₄','Natri photphat','salt'],['PH₃','Photphin','other']],
+  S:[['H₂SO₄','Axit sunfuric','acid'],['SO₂','Lưu huỳnh đioxit','oxide'],['SO₃','Lưu huỳnh trioxit','oxide'],['H₂S','Hiđro sunfua','acid'],['Na₂SO₄','Natri sunfat','salt'],['BaSO₄','Bari sunfat','salt'],['FeS','Sắt(II) sunfua','salt']],
+  Cl:[['HCl','Axit clohidric','acid'],['NaCl','Natri clorua','salt'],['Cl₂','Clo phân tử','element'],['HClO','Axit hipoclorơ','acid'],['KClO₃','Kali clorat','salt'],['CaCl₂','Canxi clorua','salt'],['FeCl₃','Sắt(III) clorua','salt']],
+  K:[['KOH','Kali hidroxit','base'],['KCl','Kali clorua','salt'],['KNO₃','Kali nitrat','salt'],['K₂CO₃','Kali cacbonat','salt'],['KMnO₄','Kali pemanganat','salt'],['K₂Cr₂O₇','Kali đicromat','salt'],['KI','Kali iodua','salt']],
+  Ca:[['CaO','Canxi oxit','oxide'],['Ca(OH)₂','Canxi hidroxit','base'],['CaCO₃','Canxi cacbonat','salt'],['CaCl₂','Canxi clorua','salt'],['CaSO₄','Canxi sunfat','salt'],['Ca₃(PO₄)₂','Canxi photphat','salt']],
+  Cr:[['Cr₂O₃','Crom(III) oxit','oxide'],['K₂CrO₄','Kali cromat','salt'],['K₂Cr₂O₇','Kali đicromat','salt'],['CrCl₃','Crom(III) clorua','salt']],
+  Mn:[['MnO₂','Mangan đioxit','oxide'],['KMnO₄','Kali pemanganat','salt'],['MnCl₂','Mangan(II) clorua','salt'],['MnSO₄','Mangan(II) sunfat','salt']],
+  Fe:[['FeO','Sắt(II) oxit','oxide'],['Fe₂O₃','Sắt(III) oxit','oxide'],['Fe₃O₄','Sắt từ oxit','oxide'],['Fe(OH)₂','Sắt(II) hidroxit','base'],['Fe(OH)₃','Sắt(III) hidroxit','base'],['FeCl₂','Sắt(II) clorua','salt'],['FeCl₃','Sắt(III) clorua','salt'],['FeSO₄','Sắt(II) sunfat','salt'],['Fe₂(SO₄)₃','Sắt(III) sunfat','salt'],['FeS','Sắt(II) sunfua','salt']],
+  Cu:[['CuO','Đồng(II) oxit','oxide'],['Cu₂O','Đồng(I) oxit','oxide'],['Cu(OH)₂','Đồng(II) hidroxit','base'],['CuSO₄','Đồng(II) sunfat','salt'],['CuCl₂','Đồng(II) clorua','salt'],['Cu(NO₃)₂','Đồng(II) nitrat','salt'],['CuS','Đồng(II) sunfua','salt']],
+  Zn:[['ZnO','Kẽm oxit','oxide'],['Zn(OH)₂','Kẽm hidroxit','base'],['ZnCl₂','Kẽm clorua','salt'],['ZnSO₄','Kẽm sunfat','salt'],['Zn(NO₃)₂','Kẽm nitrat','salt']],
+  Ag:[['AgNO₃','Bạc nitrat','salt'],['AgCl','Bạc clorua','salt'],['AgBr','Bạc bromua','salt'],['AgI','Bạc iodua','salt'],['Ag₂O','Bạc oxit','oxide'],['Ag₂S','Bạc sunfua','salt']],
+  Ba:[['BaO','Bari oxit','oxide'],['Ba(OH)₂','Bari hidroxit','base'],['BaCl₂','Bari clorua','salt'],['BaSO₄','Bari sunfat','salt'],['BaCO₃','Bari cacbonat','salt'],['Ba(NO₃)₂','Bari nitrat','salt']],
+  Pb:[['PbO','Chì(II) oxit','oxide'],['PbO₂','Chì(IV) oxit','oxide'],['Pb(OH)₂','Chì(II) hidroxit','base'],['Pb(NO₃)₂','Chì(II) nitrat','salt'],['PbCl₂','Chì(II) clorua','salt'],['PbSO₄','Chì(II) sunfat','salt'],['PbS','Chì(II) sunfua','salt'],['PbI₂','Chì(II) iodua','salt']],
+  N:[['NH₃','Amoniac','base'],['HNO₃','Axit nitric','acid'],['NO','Nitơ monoxit','oxide'],['NO₂','Nitơ đioxit','oxide'],['N₂O','Đinitơ monoxit','oxide'],['NH₄Cl','Amoni clorua','salt'],['NaNO₃','Natri nitrat','salt']],
+  O:[['H₂O','Nước','oxide'],['O₂','Oxi phân tử','element'],['O₃','Ozon','element'],['H₂O₂','Hiđro peroxit','peroxide'],['CO₂','Cacbon đioxit','oxide'],['SO₂','Lưu huỳnh đioxit','oxide']],
+  C:[['CO₂','Cacbon đioxit','oxide'],['CO','Cacbon monoxit','oxide'],['CH₄','Metan','organic'],['CaCO₃','Canxi cacbonat','salt'],['Na₂CO₃','Natri cacbonat','salt'],['NaHCO₃','Natri hidrocacbonat','salt'],['C₂H₅OH','Etanol','organic'],['CH₃COOH','Axit axetic','acid']],
+  I:[['HI','Axit iodhidric','acid'],['KI','Kali iodua','salt'],['NaI','Natri iodua','salt'],['AgI','Bạc iodua','salt'],['I₂','Iot phân tử','element']],
+  Br:[['HBr','Axit bromhidric','acid'],['KBr','Kali bromua','salt'],['NaBr','Natri bromua','salt'],['AgBr','Bạc bromua','salt'],['Br₂','Brom phân tử','element']]
+};
+
+/* ============================================================
+   LAB REAGENTS
+   ============================================================ */
+const VALENCE={H:1,Li:1,Na:1,K:1,Rb:1,Cs:1,NH4:1,Ag:1,Mg:2,Ca:2,Sr:2,Ba:2,Zn:2,Fe:2,Cu:2,Pb:2,Hg:2,Sn:2,Mn:2,Ni:2,Al:3,Cr:3,Fe3:3,F:-1,Cl:-1,Br:-1,I:-1,NO3:-1,OH:-1,HCO3:-1,CH3COO:-1,ClO3:-1,ClO4:-1,MnO4:-1,NO2:-1,O:-2,S:-2,SO4:-2,CO3:-2,SO3:-2,SiO3:-2,CrO4:-2,S2O3:-2,N:-3,PO4:-3};
+const CHEMICALS=[
+  {id:'hcl',f:'HCl',n:'Axit clohidric',type:'acid',cat:'Axit',state:'dd',form:'liquid',hex:'#dbeafe',ph:1.0,cation:'H',anion:'Cl'},
+  {id:'h2so4',f:'H₂SO₄',n:'Axit sunfuric',type:'acid',cat:'Axit',state:'dd',form:'liquid',hex:'#e0eaff',ph:0.8,cation:'H',anion:'SO4'},
+  {id:'hno3',f:'HNO₃',n:'Axit nitric',type:'acid',cat:'Axit',state:'dd',form:'liquid',hex:'#f0e8ff',ph:1.0,cation:'H',anion:'NO3'},
+  {id:'ch3cooh',f:'CH₃COOH',n:'Axit axetic',type:'acid',cat:'Axit',state:'dd',form:'liquid',hex:'#f5f0e8',ph:2.9,cation:'H',anion:'CH3COO'},
+  {id:'naoh',f:'NaOH',n:'Natri hidroxit',type:'base',cat:'Bazơ',state:'dd',form:'liquid',hex:'#e8f0ff',ph:13.0,cation:'Na',anion:'OH'},
+  {id:'koh',f:'KOH',n:'Kali hidroxit',type:'base',cat:'Bazơ',state:'dd',form:'liquid',hex:'#e8f0ff',ph:13.2,cation:'K',anion:'OH'},
+  {id:'baoh2',f:'Ba(OH)₂',n:'Bari hidroxit',type:'base',cat:'Bazơ',state:'dd',form:'liquid',hex:'#eaf2ff',ph:12.5,cation:'Ba',anion:'OH'},
+  {id:'caoh2',f:'Ca(OH)₂',n:'Canxi hidroxit',type:'base',cat:'Bazơ',state:'dd',form:'liquid',hex:'#f0f6ff',ph:12.4,cation:'Ca',anion:'OH'},
+  {id:'nh3',f:'NH₃',n:'Amoniac',type:'base',cat:'Bazơ',state:'dd',form:'liquid',hex:'#eaf8ff',ph:11.0,cation:'NH4',anion:'OH'},
+  {id:'nacl',f:'NaCl',n:'Natri clorua',type:'salt',cat:'Muối',state:'dd',form:'liquid',hex:'#f5faff',ph:7.0,cation:'Na',anion:'Cl'},
+  {id:'na2co3',f:'Na₂CO₃',n:'Natri cacbonat',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f2f9ff',ph:11.5,cation:'Na',anion:'CO3'},
+  {id:'nahco3',f:'NaHCO₃',n:'Natri hidrocacbonat',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f7fbff',ph:8.3,cation:'Na',anion:'HCO3'},
+  {id:'na2so3',f:'Na₂SO₃',n:'Natri sunfit',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f3faff',ph:9.5,cation:'Na',anion:'SO3'},
+  {id:'na2s',f:'Na₂S',n:'Natri sunfua',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f5f5e8',ph:12.0,cation:'Na',anion:'S'},
+  {id:'na2s2o3',f:'Na₂S₂O₃',n:'Natri thiosunfat',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f5fbff',ph:7.5,cation:'Na',anion:'S2O3'},
+  {id:'cuso4',f:'CuSO₄',n:'Đồng(II) sunfat',type:'salt',cat:'Muối',state:'dd',form:'liquid',hex:'#1e88e5',ph:4.5,cation:'Cu',anion:'SO4'},
+  {id:'fecl3',f:'FeCl₃',n:'Sắt(III) clorua',type:'salt',cat:'Muối',state:'dd',form:'liquid',hex:'#b45309',ph:2.5,cation:'Fe3',anion:'Cl'},
+  {id:'alcl3',f:'AlCl₃',n:'Nhôm clorua',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f0f5ff',ph:3.0,cation:'Al',anion:'Cl'},
+  {id:'agno3',f:'AgNO₃',n:'Bạc nitrat',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f4f8fb',ph:5.5,cation:'Ag',anion:'NO3'},
+  {id:'bacl2',f:'BaCl₂',n:'Bari clorua',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f4fbff',ph:6.5,cation:'Ba',anion:'Cl'},
+  {id:'cacl2',f:'CaCl₂',n:'Canxi clorua',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f3faff',ph:7.0,cation:'Ca',anion:'Cl'},
+  {id:'pbno32',f:'Pb(NO₃)₂',n:'Chì(II) nitrat',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#f5f5f5',ph:4.5,cation:'Pb',anion:'NO3'},
+  {id:'ki',f:'KI',n:'Kali iodua',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#fbfdff',ph:7.0,cation:'K',anion:'I'},
+  {id:'kmno4',f:'KMnO₄',n:'Kali pemanganat',type:'salt',cat:'Muối',state:'dd',form:'powder',hex:'#7c3aed',ph:6.0,cation:'K',anion:'MnO4'},
+  {id:'fe',f:'Fe',n:'Sắt',type:'metal',cat:'Kim loại',state:'r',form:'solid',hex:'#8d949c',activity:'Fe'},
+  {id:'zn',f:'Zn',n:'Kẽm',type:'metal',cat:'Kim loại',state:'r',form:'solid',hex:'#b6bfc7',activity:'Zn'},
+  {id:'mg',f:'Mg',n:'Magie',type:'metal',cat:'Kim loại',state:'r',form:'solid',hex:'#d2d6da',activity:'Mg'},
+  {id:'al',f:'Al',n:'Nhôm',type:'metal',cat:'Kim loại',state:'r',form:'solid',hex:'#c3c9cf',activity:'Al'},
+  {id:'cu',f:'Cu',n:'Đồng',type:'metal',cat:'Kim loại',state:'r',form:'solid',hex:'#b87333',activity:'Cu'},
+  {id:'h2o2',f:'H₂O₂',n:'Hiđro peroxit',type:'other',cat:'Khác',state:'dd',form:'liquid',hex:'#e8f8ff',ph:5.0,cation:'H',anion:'OH'},
+  {id:'mno2',f:'MnO₂',n:'Mangan đioxit',type:'other',cat:'Khác',state:'r',form:'powder',hex:'#2b2b2b'},
+  {id:'pp',f:'PP',n:'Phenolphtalein',type:'indicator',cat:'Chỉ thị',state:'dd',form:'liquid',hex:'#ffffff'},
+  {id:'mo',f:'MO',n:'Metyl da cam',type:'indicator',cat:'Chỉ thị',state:'dd',form:'liquid',hex:'#f59e0b'},
+  {id:'quy',f:'Quỳ',n:'Quỳ tím',type:'indicator',cat:'Chỉ thị',state:'dd',form:'liquid',hex:'#a78bfa'}
+];
+const reagentSeed=Object.values(COMPOUNDS).flat();
+const reagentTypeMap={acid:'acid',base:'base',salt:'salt',organic:'organic',oxide:'oxide',peroxide:'other',element:'element',other:'other'};
+let reagentIndex=0;
+while(CHEMICALS.length<3000){const src=reagentSeed[reagentIndex%reagentSeed.length]||['H₂O','Nước','oxide'];const kind=reagentTypeMap[src[2]]||'other';const liquid=kind==='acid'||kind==='base'||kind==='organic'||reagentIndex%5===0;const hue=(reagentIndex*47)%360;const ph=kind==='acid'?1+(reagentIndex%35)/10:kind==='base'?11+(reagentIndex%20)/10:7+(reagentIndex%7-3)/10;CHEMICALS.push({id:`catalog-${reagentIndex}`,f:src[0],n:`${src[1]} · mục ${String(reagentIndex+1).padStart(4,'0')}`,type:kind,cat:'Catalog mở rộng',state:liquid?'dd':'r',form:liquid?'liquid':'powder',hex:`hsl(${hue} 55% 78%)`,ph,cation:kind==='acid'?'H':undefined,anion:kind==='acid'?'Cl':undefined,valence:kind==='acid'?1:undefined,oxidation:kind==='acid'?'+1':'đa hóa trị',molarMass:'tra cứu mô phỏng',meltingPoint:'—',boilingPoint:'—',electronConfig:'theo nguyên tố'});reagentIndex++}
+const CHEM_MAP=Object.fromEntries(CHEMICALS.map(c=>[c.id,c]));
+const CATEGORIES=['Tất cả',...new Set(CHEMICALS.map(c=>c.cat))];
+const FORM_LABEL={solid:'Rắn',powder:'Bột',liquid:'Dd',gas:'Khí'};
+
+/* ============================================================
+   REACTION ENGINE
+   ============================================================ */
+function solubility(c,a){const AL=['Li','Na','K','Rb','Cs','NH4','H'],SO=['NO3','CH3COO','ClO3','ClO4'];if(AL.includes(c))return'soluble';if(SO.includes(a))return'soluble';if(['Cl','Br','I','F'].includes(a))return['Ag','Pb','Hg','Hg2'].includes(c)?'insoluble':'soluble';if(a==='SO4'){if(['Ba','Pb','Sr'].includes(c))return'insoluble';if(['Ca','Ag','Hg'].includes(c))return'slightly';return'soluble';}if(['CO3','PO4','SO3','SiO3','CrO4'].includes(a))return'insoluble';if(a==='S')return['Ca','Mg','Ba','Sr','NH4','Na','K'].includes(c)?'soluble':'insoluble';if(a==='OH'){if(['Ba','Sr'].includes(c))return'soluble';if(c==='Ca')return'slightly';return'insoluble';}return'soluble';}
+const ACTIVITY=['K','Ba','Ca','Na','Mg','Al','Zn','Cr','Fe','Cd','Co','Ni','Sn','Pb','H','Cu','Hg','Ag','Pt','Au'];
+function makeSalt(c,a){if(!c||!a)return null;const cv=Math.abs(VALENCE[c]||1),av=Math.abs(VALENCE[a]||1);const gcd=(x,y)=>y===0?x:gcd(y,x%y);const l=(cv*av)/gcd(cv,av);const nc=l/cv,na=l/av;const P=['NO3','OH','SO4','CO3','PO4','HCO3','CH3COO','ClO3','ClO4','MnO4','SO3','SiO3','CrO4','S2O3','NH4','Hg2'];const cp=nc>1?`${c}${nc}`:c;const ap=na>1?(P.includes(a)?`(${a})${na}`:`${a}${na}`):a;return cp+ap;}
+function analyzePair(a,b,temp){
+  if(a.type==='indicator'||b.type==='indicator'){
+    const ind=a.type==='indicator'?a:b,o=a.type==='indicator'?b:a;
+    if(ind.id==='pp'){if(o.type==='base')return{level:'ok',type:'Chỉ thị',name:'PP + bazơ',equation:'PP + OH⁻ → hồng',desc:'Dung dịch chuyển hồng tím.',fx:{color:'#e84393',glow:.5}};if(o.type==='acid')return{level:'ok',type:'Chỉ thị',name:'PP + axit',equation:'PP + H⁺ → không đổi màu',desc:'Dung dịch trong suốt.',fx:{color:'#eef7ff'}};}
+    if(ind.id==='mo'){if(o.type==='acid')return{level:'ok',type:'Chỉ thị',name:'MO + axit',equation:'MO + H⁺ → đỏ',desc:'Chuyển đỏ hồng.',fx:{color:'#ef4444'}};if(o.type==='base')return{level:'ok',type:'Chỉ thị',name:'MO + bazơ',equation:'MO + OH⁻ → vàng',desc:'Chuyển vàng.',fx:{color:'#fbbf24'}};}
+    if(ind.id==='quy'){if(o.type==='acid')return{level:'ok',type:'Chỉ thị',name:'Quỳ + axit',equation:'Quỳ + H⁺ → đỏ',desc:'Quỳ hóa đỏ.',fx:{color:'#ef4444'}};if(o.type==='base')return{level:'ok',type:'Chỉ thị',name:'Quỳ + bazơ',equation:'Quỳ + OH⁻ → xanh',desc:'Quỳ hóa xanh.',fx:{color:'#3b82f6'}};}
+    return{level:'ok',type:'Chỉ thị',name:'Chỉ thị + hóa chất',equation:'—',desc:'Không phản ứng đặc trưng.',fx:{color:'#eef7ff'}};
+  }
+  const acid=a.type==='acid'?a:(b.type==='acid'?b:null);
+  const base=a.type==='base'?a:(b.type==='base'?b:null);
+  const metal=a.type==='metal'?a:(b.type==='metal'?b:null);
+  const salt=a.type==='salt'?a:(b.type==='salt'?b:null);
+  if(acid&&base){const s=makeSalt(base.cation,acid.anion);const hC=Math.abs(VALENCE[acid.cation]||1),ohC=Math.abs(VALENCE[base.cation]||1);const w=Math.max(hC,ohC);return{level:'ok',type:'Trung hòa',name:`${acid.n} + ${base.n}`,equation:`${acid.f} + ${base.f} → ${s} + ${w>1?w:''}H₂O`,desc:`Trung hòa tạo muối ${s} và nước. Tỏa nhiệt.`,fx:{heat:12,color:'#e6eef5',fire:0.35}};}
+  if(acid&&salt){
+    if(salt.anion==='CO3'||salt.anion==='HCO3'){const isB=salt.anion==='HCO3';return{level:'ok',type:'Sủi bọt khí',name:`${acid.n} + ${salt.n}`,equation:isB?`${acid.f} + ${salt.f} → ${makeSalt(salt.cation,acid.anion)} + H₂O + CO₂↑`:`2${acid.f} + ${salt.f} → ${makeSalt(salt.cation,acid.anion)}₂ + H₂O + CO₂↑`,desc:'Giải phóng CO₂, sủi bọt mạnh.',fx:{gas:isB?.85:1,gasColor:'#ffffff',color:'#f2f9ff'}};}
+    if(salt.anion==='SO3')return{level:'warning',type:'Khí độc',name:`${acid.n} + ${salt.n}`,equation:`2${acid.f} + ${salt.f} → ${makeSalt(salt.cation,acid.anion)}₂ + H₂O + SO₂↑`,desc:'SO₂ mùi hắc, độc.',fx:{gas:.9,gasColor:'#f0eab0',smoke:.6,smokeColor:'#e8e0a0',color:'#e8e8d0'}};
+    if(salt.anion==='S')return{level:'danger',type:'Khí độc',name:`${acid.n} + ${salt.n}`,equation:`2${acid.f} + ${salt.f} → ${makeSalt(salt.cation,acid.anion)}₂ + H₂S↑`,desc:'H₂S mùi trứng thối, RẤT ĐỘC.',fx:{gas:1,gasColor:'#e8e8b0',smoke:.8,smokeColor:'#d8d8a0',color:'#e8e8c8',boom:0.4}};
+  }
+  if(metal&&acid){
+    const mi=ACTIVITY.indexOf(metal.activity),hi=ACTIVITY.indexOf('H');
+    if(mi===-1||mi>hi)return{level:'blocked',type:'Không phản ứng',name:`${metal.n} + ${acid.n}`,equation:'—',desc:`${metal.n} đứng sau H, không đẩy được H.`,fx:{}};
+    const s=makeSalt(metal.activity,acid.anion);const v=Math.abs(VALENCE[metal.activity]||2);
+    const eq=v===2?`${metal.f} + 2${acid.f} → ${s} + H₂↑`:`2${metal.f} + ${v*2}${acid.f} → 2${s} + ${v}H₂↑`;
+    const hm={Mg:22,Al:14,Zn:6,Fe:3};const isHot=['Mg','Al','K','Na','Ca'].includes(metal.activity);
+    return{level:'warning',type:'Kim loại + axit',name:`${metal.n} + ${acid.n}`,equation:eq,desc:`${metal.n} tan, giải phóng H₂.${isHot?' Tỏa nhiệt mạnh, có thể bùng cháy!':''}`,fx:{gas:1,gasColor:'#e8f6ff',heat:hm[metal.activity]||3,color:'#eef6ff',fire:isHot?0.6:0.15}};
+  }
+  if(metal&&salt){
+    const mi=ACTIVITY.indexOf(metal.activity),si=ACTIVITY.indexOf(salt.cation);
+    if(mi===-1||si===-1||mi>si)return{level:'blocked',type:'Không phản ứng',name:`${metal.n} + ${salt.n}`,equation:'—',desc:`${metal.n} đứng sau ${salt.cation}.`,fx:{}};
+    const ns=makeSalt(metal.activity,salt.anion);
+    const mc={Cu:{color:'#4a90c2',precip:'#b87333'},Fe:{color:'#a0c4a8',precip:'#3a3a3a'},Zn:{color:'#eef6ff',precip:'#c0c8d0'},Mg:{color:'#eef6ff',precip:'#d8dce0'},Al:{color:'#eef6ff',precip:'#c8ccd0'},Ag:{color:'#eef6ff',precip:'#e0e4e8'}};
+    const c=mc[salt.cation]||{color:'#eef6ff',precip:'#ccc'};
+    return{level:'ok',type:'Đẩy kim loại',name:`${metal.n} + ${salt.n}`,equation:`${metal.f} + ${salt.f} → ${ns} + ${salt.cation}`,desc:`${metal.n} đẩy ${salt.cation} ra khỏi muối.`,fx:{precip:.75,precipColor:c.precip,color:c.color,heat:5}};
+  }
+  if(salt&&a.type==='salt'&&b.type==='salt'){
+    const p1={cation:a.cation,anion:b.anion,s:solubility(a.cation,b.anion)};
+    const p2={cation:b.cation,anion:a.anion,s:solubility(b.cation,a.anion)};
+    const ins=[];if(p1.s==='insoluble')ins.push(p1);if(p2.s==='insoluble')ins.push(p2);
+    if(!ins.length)return{level:'blocked',type:'Không phản ứng',name:`${a.n} + ${b.n}`,equation:'—',desc:'Không có kết tủa.',fx:{}};
+    const pi=ins[0],pf=makeSalt(pi.cation,pi.anion);
+    const os=p1.s==='insoluble'?p2:p1,of=os?makeSalt(os.cation,os.anion):'';
+    const pc={'AgCl':'#f8f8f5','AgBr':'#f0ead8','AgI':'#f5d020','BaSO4':'#ffffff','PbSO4':'#ffffff','BaCO3':'#fcfcfa','CaCO3':'#fbfbf8','PbCO3':'#f8f8f0','Cu(OH)2':'#4fc3f7','Fe(OH)3':'#8b3a1f','Al(OH)3':'#f0f0f0','Mg(OH)2':'#ffffff','PbS':'#1a1a1a','CuS':'#1a1a1a','Ag2S':'#0a0a0a','FeS':'#1a1a1a','PbI2':'#f5d020'};
+    const pColor=pc[pf]||'#f0f0f0';let col='#eef6ff';if(a.hex!=='#ffffff'&&a.hex!=='#f5faff')col=a.hex;
+    const dark=['PbS','CuS','Ag2S','FeS'].includes(pf);
+    return{level:'ok',type:'Kết tủa',name:`${a.n} + ${b.n}`,equation:`${a.f} + ${b.f} → ${pf}↓ + ${of}`,desc:`Kết tủa ${pf} ${dark?'đen':'trắng'} xuất hiện.`,fx:{precip:1,precipColor:pColor,color:col}};
+  }
+  if(base&&salt){
+    const p1={cation:base.cation,anion:salt.anion,s:solubility(base.cation,salt.anion)};
+    const p2={cation:salt.cation,anion:base.anion,s:solubility(salt.cation,base.anion)};
+    const ins=[];if(p1.s==='insoluble')ins.push(p1);if(p2.s==='insoluble')ins.push(p2);
+    if(!ins.length)return{level:'blocked',type:'Không phản ứng',name:`${base.n} + ${salt.n}`,equation:'—',desc:'Không có kết tủa.',fx:{}};
+    const pi=ins[0],pf=makeSalt(pi.cation,pi.anion);
+    const pc={'Cu(OH)2':'#4fc3f7','Fe(OH)3':'#8b3a1f','Fe(OH)2':'#7a9a6a','Al(OH)3':'#f0f0f0','Mg(OH)2':'#ffffff','Zn(OH)2':'#f5f5f5','BaSO4':'#ffffff','CaCO3':'#fbfbf8'};
+    return{level:'ok',type:'Kết tủa',name:`${base.n} + ${salt.n}`,equation:`${base.f} + ${salt.f} → ${pf}↓`,desc:`Kết tủa ${pf} tạo thành.`,fx:{precip:1,precipColor:pc[pf]||'#f0f0f0',color:'#eef6ff'}};
+  }
+  // Các phản ứng thường gặp ngoài đời, bổ sung trước các nhánh tổng quát.
+  if((a.id==='h2o2'&&b.id==='ki')||(a.id==='ki'&&b.id==='h2o2'))return{level:'warning',type:'Oxi hóa – khử',name:'H₂O₂ + KI',equation:'H₂O₂ + 2KI → I₂ + 2KOH',desc:'Iot tạo màu nâu; phản ứng xảy ra rõ trong dung dịch.',fx:{color:'#9b6b14',heat:3}};
+  if((a.id==='h2o2'&&b.id==='fecl3')||(a.id==='fecl3'&&b.id==='h2o2'))return{level:'ok',type:'Oxi hóa – khử',name:'H₂O₂ + FeCl₃',equation:'2Fe³⁺ + H₂O₂ → 2Fe²⁺ + O₂↑ + 2H⁺',desc:'Fe³⁺ xúc tác/phản ứng oxi hóa – khử, có bọt khí O₂.',fx:{gas:.65,gasColor:'#eaf6ff',heat:4,color:'#7d9b72'}};
+  if((a.id==='h2o2'&&b.id==='mno2')||(a.id==='mno2'&&b.id==='h2o2'))return{level:'ok',type:'Xúc tác',name:'Phân hủy H₂O₂',equation:'2H₂O₂ —MnO₂→ 2H₂O + O₂↑',desc:'MnO₂ xúc tác, O₂ sủi mạnh.',fx:{gas:1,gasColor:'#eaf6ff',heat:8,color:'#eaf6ff',fire:0.25}};
+  if((a.id==='kmno4'&&b.id==='hcl')||(a.id==='hcl'&&b.id==='kmno4')){
+    if(temp<60)return{level:'blocked',type:'Cần đun nóng',needTemp:60,name:'KMnO₄ + HCl',equation:'2KMnO₄ + 16HCl → 2KCl + 2MnCl₂ + 5Cl₂↑ + 8H₂O',desc:`Cần ≥60°C. Hiện tại ${temp}°C.`,fx:{}};
+    return{level:'danger',type:'Oxi hóa – khử',name:'KMnO₄ + HCl',equation:'2KMnO₄ + 16HCl → 2KCl + 2MnCl₂ + 5Cl₂↑ + 8H₂O',desc:'Tím mất màu, khí Cl₂ vàng lục rất độc.',fx:{gas:1,gasColor:'#c8e04a',smoke:1,smokeColor:'#b8d93a',heat:12,color:'#d8cfa8',boom:0.7,fire:0.8}};
+  }
+  if((a.id==='na2s2o3'&&(b.id==='hcl'||b.id==='h2so4'))||(b.id==='na2s2o3'&&(a.id==='hcl'||a.id==='h2so4')))return{level:'warning',type:'Đồng hồ',name:'Na₂S₂O₃ + Axit',equation:a.id==='hcl'||b.id==='hcl'?'Na₂S₂O₃ + 2HCl → 2NaCl + H₂O + S↓ + SO₂↑':'Na₂S₂O₃ + H₂SO₄ → Na₂SO₄ + H₂O + S↓ + SO₂↑',desc:'S vàng đục dần, SO₂ mùi hắc.',fx:{precip:.9,precipColor:'#f0e68c',gas:.4,gasColor:'#f0eab0',color:'#e8e0a8'}};
+  if((a.id==='ki'&&b.id==='h2o2')||(a.id==='h2o2'&&b.id==='ki'))return{level:'ok',type:'Oxi hóa – khử',name:'KI + H₂O₂',equation:'2KI + H₂O₂ → I₂ + 2KOH',desc:'Dung dịch vàng nâu do iot.',fx:{color:'#b8860b',heat:4}};
+  if((a.id==='na2s'&&(b.id==='hcl'||b.id==='h2so4'))||(b.id==='na2s'&&(a.id==='hcl'||a.id==='h2so4')))return{level:'danger',type:'Khí độc',name:'Na₂S + Axit',equation:'Na₂S + 2HCl → 2NaCl + H₂S↑',desc:'H₂S cực độc, mùi trứng thối.',fx:{gas:1,gasColor:'#e8e8b0',smoke:.9,smokeColor:'#d8d8a0',color:'#e8e8c8',boom:0.5}};
+  if((a.id==='fecl3'&&b.id==='ki')||(a.id==='ki'&&b.id==='fecl3'))return{level:'warning',type:'Oxi hóa – khử',name:'FeCl₃ + KI',equation:'2FeCl₃ + 2KI → 2FeCl₂ + I₂ + 2KCl',desc:'Dung dịch xuất hiện màu nâu của iot.',fx:{color:'#956b18',heat:2}};
+  if((a.type==='metal'&&b.id==='h2o2')||(b.type==='metal'&&a.id==='h2o2'))return{level:'warning',type:'Oxi hóa – khử',name:`${a.n} + H₂O₂`,equation:`${a.f} + H₂O₂ → oxit kim loại + H₂O`,desc:'Kim loại bị oxi hóa bởi peroxit; mô phỏng tỏa nhiệt và đổi màu.',fx:{heat:5,glow:.25,color:'#cbd5e1'}};
+  return null;
+}
+function evaluateLab(ids,{temp,volume}){
+  const chems=ids.map(id=>CHEM_MAP[id]).filter(Boolean);
+  if(!chems.length)return{chems:[],reactions:[],blocked:[],ph:7,status:'idle',color:new THREE.Color('#e9f4fa'),fx:{gas:0,precip:0,heat:0,smoke:0,glow:0,fire:0,boom:0,color:'#e9f4fa',gasColor:'#fff',precipColor:'#fff',smokeColor:'#fff'}};
+  const reactions=[],blocked=[];
+  for(let i=0;i<chems.length;i++)for(let j=i+1;j<chems.length;j++){const r=analyzePair(chems[i],chems[j],temp);if(!r)continue;(r.level==='blocked'?blocked:reactions).push({...r,pair:[chems[i],chems[j]]});}
+  let num=volume*Math.pow(10,-7),den=volume;
+  chems.forEach(c=>{if(c.ph==null)return;const dv=volume*0.12;num+=dv*Math.pow(10,-c.ph);den+=dv;});
+  let ph=-Math.log10(num/den);
+  if(reactions.some(r=>r.type==='Trung hòa'))ph=7+(ph-7)*0.15;
+  const fx={gas:0,gasColor:'#fff',precip:0,precipColor:'#fff',heat:0,smoke:0,smokeColor:'#fff',glow:0,fire:0,boom:0,color:null};
+  const cc=[];
+  reactions.forEach(r=>{const f=r.fx||{};if(f.gas)fx.gas=Math.min(1,fx.gas+f.gas);if(f.gasColor&&f.gas)fx.gasColor=f.gasColor;if(f.precip)fx.precip=Math.min(1,fx.precip+f.precip);if(f.precipColor&&f.precip)fx.precipColor=f.precipColor;if(f.heat)fx.heat+=f.heat;if(f.smoke)fx.smoke=Math.max(fx.smoke,f.smoke);if(f.smokeColor&&f.smoke)fx.smokeColor=f.smokeColor;if(f.glow)fx.glow=Math.max(fx.glow,f.glow);if(f.fire)fx.fire=Math.max(fx.fire,f.fire);if(f.boom)fx.boom=Math.max(fx.boom,f.boom);if(f.color)cc.push(f.color);});
+  let color;if(cc.length){color=new THREE.Color(cc[0]);cc.slice(1).forEach(c=>color.lerp(new THREE.Color(c),0.4));}else{color=new THREE.Color('#e9f4fa');const w=Math.min(.5,.7/chems.length);chems.forEach(c=>color.lerp(new THREE.Color(c.hex),w));}
+  fx.color='#'+color.getHexString();
+  let status='ok';if(reactions.some(r=>r.level==='danger'))status='danger';else if(reactions.some(r=>r.level==='warning'))status='warning';else if(!reactions.length&&!blocked.length)status='none';
+  return{chems,reactions,blocked,ph,status,color,fx};
+}
+
+/* ============================================================
+   STATE + HELPERS
+   ============================================================ */
+const state={view:'lab',selected:new Set(),temp:25,volume:200,stir:true,filter:'Tất cả',search:'',page:0,selectedElement:null,elementCategoryFilter:null,elementSearch:'',lastResult:null};
+const logs=[];
+const $=id=>document.getElementById(id);
+const appRoot=$('appRoot');
+const toastsEl=$('toasts');
+window.addEventListener('load',()=>setTimeout(()=>window.__releaseChemLabSplash?.(),900));
+function toast(title,msg,type='info',dur=4000){
+  const el=document.createElement('div');el.className=`toast ${type}`;
+  const im={ok:'check-circle-fill',warning:'exclamation-triangle-fill',danger:'x-octagon-fill',info:'info-circle-fill'};
+  el.innerHTML=`<i class="bi bi-${im[type]}"></i><div class="body"><strong>${title}</strong>${msg}</div>`;
+  toastsEl.appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .2s';el.style.opacity='0';setTimeout(()=>el.remove(),220);},dur);
+}
+
+/* ============================================================
+   VIEW SWITCH + TABS
+   ============================================================ */
+$('viewSwitch').addEventListener('click',e=>{const t=e.target.closest('.view-tab');if(!t)return;switchView(t.dataset.view);});
+function switchView(v){
+  state.view=v;appRoot.dataset.view=v;
+  document.querySelectorAll('.view-tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v));
+  $('toolbarLab').style.display=v==='lab'?'flex':'none';
+  $('toolbarTable').style.display=v==='table'?'flex':'none';
+  if(v==='table')renderPeriodicTable();
+  if(v==='practice')renderPractice();
+  if(v==='sandbox'){initSandbox();setTimeout(resizeSandbox,50)}
+  if(v==='lab')setTimeout(onResize,50);
+}
+document.querySelectorAll('.right-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.right-tab').forEach(t=>t.classList.toggle('active',t===tab));
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active',p.id==='pane'+tab.dataset.rtab[0].toUpperCase()+tab.dataset.rtab.slice(1)));
+  });
+});
+
+/* ============================================================
+   CHEM LIST — EVENT DELEGATION (fix rebind)
+   ============================================================ */
+const chemListEl=$('chemList'),chemCountEl=$('chemCount'),chemFiltersEl=$('chemFilters'),chemSearchEl=$('chemSearch');
+function buildFilters(){chemFiltersEl.innerHTML=CATEGORIES.map(c=>`<button class="chip${c===state.filter?' active':''}" data-cat="${c}">${c}</button>`).join('');}
+function renderChemicals(){const s=state.search.toLowerCase().trim(),f=state.filter,filtered=CHEMICALS.filter(c=>(f==='Tất cả'||c.cat===f)&&(!s||c.f.toLowerCase().includes(s)||c.n.toLowerCase().includes(s))),pageSize=90,visible=filtered.slice(0,(state.page+1)*pageSize),groups={};visible.forEach(c=>(groups[c.cat]||(groups[c.cat]=[])).push(c));let html='';Object.entries(groups).forEach(([cat,chems])=>{html+=`<div class="chem-cat">${cat}</div>`;chems.forEach(c=>{const sel=state.selected.has(c.id);html+=`<div class="chem-item${sel?' selected':''}" draggable="true" data-id="${c.id}"><div class="bar" style="background:${c.hex}"></div><div class="meta"><div class="fml">${c.f}</div><div class="nm">${c.n}</div></div><span class="badge-state">${c.state}</span><span class="badge-form">${FORM_LABEL[c.form]||''}</span></div>`})});if(!visible.length)html='<div style="padding:30px;text-align:center;color:var(--txt-3);font-size:12px;">Không tìm thấy</div>';if(visible.length<filtered.length)html+=`<div class="chem-more"><button class="btn-u sm" data-more-reagents><i class="bi bi-chevron-down"></i> Hiển thị thêm (${filtered.length-visible.length} còn lại)</button></div>`;chemListEl.innerHTML=html;chemCountEl.textContent=`${state.selected.size}/${CHEMICALS.length}`;$('statusCount').textContent=`${state.selected.size} / ${CHEMICALS.length} reagents`}
+
+/* Event delegation — attach ONCE */
+chemListEl.addEventListener('dragstart',e=>{
+  const it=e.target.closest('.chem-item');if(!it)return;
+  e.dataTransfer.setData('text/chem-id',it.dataset.id);
+  e.dataTransfer.effectAllowed='copy';
+  it.classList.add('dragging');
+  $('statusMsg').textContent=`Đang kéo ${CHEM_MAP[it.dataset.id].f}…`;
+});
+chemListEl.addEventListener('dragend',e=>{
+  const it=e.target.closest('.chem-item');if(it)it.classList.remove('dragging');
+  $('statusMsg').textContent='Ready';
+});
+chemListEl.addEventListener('click',e=>{const more=e.target.closest('[data-more-reagents]');if(more){state.page++;renderChemicals();return}const it=e.target.closest('.chem-item');if(!it)return;const id=it.dataset.id,c=CHEM_MAP[id];renderReagentInspector(c);if(state.selected.has(id))state.selected.delete(id);else{state.selected.add(id);if(c?.form==='liquid')dropLiquidToPetri(id);else spawnChemicalDrop(id)}renderChemicals();refreshLab()});
+chemFiltersEl.addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  state.filter=c.dataset.cat;state.page=0;
+  chemFiltersEl.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active',x.dataset.cat===state.filter));
+  renderChemicals();
+});
+chemSearchEl.addEventListener('input',e=>{state.search=e.target.value;state.page=0;renderChemicals();});
+
+/* ============================================================
+   VIEWPORT DROP ZONE
+   ============================================================ */
+const viewportEl=$('viewport');
+['dragenter','dragover'].forEach(ev=>viewportEl.addEventListener(ev,e=>{e.preventDefault();e.dataTransfer.dropEffect='copy';viewportEl.classList.add('drag-over');}));
+viewportEl.addEventListener('dragleave',e=>{if(!viewportEl.contains(e.relatedTarget))viewportEl.classList.remove('drag-over');});
+viewportEl.addEventListener('drop',e=>{
+  e.preventDefault();viewportEl.classList.remove('drag-over');
+  const id=e.dataTransfer.getData('text/chem-id');
+  if(!id||!CHEM_MAP[id])return;
+  if(!state.selected.has(id))state.selected.add(id);
+  spawnChemicalDrop(id);
+  renderChemicals();refreshLab();
+  $('statusMsg').textContent=`Đã thêm ${CHEM_MAP[id].f}`;
+  setTimeout(()=>$('statusMsg').textContent='Ready',1500);
+});
+
+/* ============================================================
+   THREE.JS
+   ============================================================ */
+let placedInstruments=[];
+function normalizeFormulaText(v){return (v||'').trim().toLowerCase().replace(/[₀₁₂₃₄₅₆₇₈₉]/g,m=>String('₀₁₂₃₄₅₆₇₈₉'.indexOf(m))).replace(/\s+/g,'');}
+function findChemicalFromInput(value){const q=normalizeFormulaText(value);return CHEMICALS.find(c=>normalizeFormulaText(c.f)===q||c.n.toLowerCase()===String(value||'').trim().toLowerCase())||CHEMICALS.find(c=>normalizeFormulaText(c.f).includes(q)&&q.length>1);}
+function buildEquationFromInputs(){const a=findChemicalFromInput($('calcReactantA')?.value),b=findChemicalFromInput($('calcReactantB')?.value),eq=$('formulaEquation'),phen=$('formulaPhenomenon');if(!a||!b){eq.textContent='Không tìm thấy chất trong catalog';phen.textContent='Hãy nhập công thức như HCl, NaOH, AgNO₃, Na₂CO₃…';return;}const r=analyzePair(a,b,state.temp);if(!r||r.level==='blocked'){eq.textContent=r?.equation&&r.equation!=='—'?`${a.f} + ${b.f} → ${r.equation}`:`${a.f} + ${b.f} → Không phản ứng ở điều kiện hiện tại`;phen.textContent=r?.desc||'Chưa có quy tắc phản ứng cho cặp chất này.';return;}eq.textContent=r.equation;phen.textContent=`${r.type} · ${r.desc}`;}
+$('btnBuildEquation')?.addEventListener('click',buildEquationFromInputs);
+$('calcReactantA')?.addEventListener('keydown',e=>{if(e.key==='Enter')buildEquationFromInputs()});
+$('calcReactantB')?.addEventListener('keydown',e=>{if(e.key==='Enter')buildEquationFromInputs()});
+function placeInstrument(type){if(!webglOK||!scene){toast('3D chưa sẵn sàng','Vui lòng đợi khung thí nghiệm khởi động.','warning');return}if(type==='splash'){triggerSplash();toast('Splash','Đã tạo hiệu ứng bắn tóe.','info');return}const g=createInstrumentModel(type),i=placedInstruments.length;g.position.set(-2.05+(i%4)*1.35,.02,1.05+Math.floor(i/4)*.55);g.rotation.y=(i%3-.5)*.35;g.userData={type,chemIds:[],temperature:25,heat:0,dragMoved:false};scene.add(g);placedInstruments.push(g);toast(instrumentNames[type],'Đã đặt. Kéo trực tiếp mô hình để di chuyển.','ok');updateLiveReadouts()}
+function createInstrumentModel(type){const g=new THREE.Group(),glass=new THREE.MeshPhysicalMaterial({color:0x9ddcff,roughness:.55,transparent:true,opacity:.35,transmission:0,flatShading:true,side:THREE.DoubleSide}),dark=new THREE.MeshStandardMaterial({color:0x202833,roughness:.4,metalness:.65}),cyan=new THREE.MeshStandardMaterial({color:0x4f9eff,emissive:0x123b70});if(type==='petri'){const a=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.09,16),glass),b=new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,.045,16),glass);b.position.y=.1;g.add(a,b)}if(type==='burner'){const a=new THREE.Mesh(new THREE.CylinderGeometry(.3,.36,lowPowerMode?16:32),dark),b=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,.42,lowPowerMode?12:24),dark),c=new THREE.Mesh(new THREE.ConeGeometry(.14,.5,lowPowerMode?10:20),new THREE.MeshBasicMaterial({color:0xff7a2f,transparent:true,opacity:.85}));b.position.y=.25;c.position.y=.7;g.add(a,b,c)}if(type==='tube-short'||type==='tube-long'){const h=type==='tube-long'?1.35:.8,a=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,h,lowPowerMode?12:24,1,true),glass),b=new THREE.Mesh(new THREE.SphereGeometry(.13,lowPowerMode?12:24,lowPowerMode?6:12,0,Math.PI*2,0,Math.PI/2),glass);a.position.y=h/2;b.position.y=.05;g.add(a,b)}return g}
+const raycaster=new THREE.Raycaster(),dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);let dragTool=null,dragPoint=new THREE.Vector3(),pointerStart=null;
+function findTool(obj){while(obj&&obj!==scene){if(placedInstruments.includes(obj))return obj;obj=obj.parent}return null}
+function pointerNdc(e){const r=renderer.domElement.getBoundingClientRect();return new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1)}
+function bindToolInteraction(){const c=renderer.domElement;c.addEventListener('pointerdown',e=>{const ndc=pointerNdc(e);raycaster.setFromCamera(ndc,camera);const hit=raycaster.intersectObjects(placedInstruments,true)[0];const tool=hit&&findTool(hit.object);if(!tool)return;dragTool=tool;pointerStart={x:e.clientX,y:e.clientY};controls.enabled=false;c.setPointerCapture?.(e.pointerId)});c.addEventListener('pointermove',e=>{if(!dragTool)return;const ndc=pointerNdc(e);raycaster.setFromCamera(ndc,camera);if(raycaster.ray.intersectPlane(dragPlane,dragPoint)){dragTool.position.x=dragPoint.x;dragTool.position.z=dragPoint.z;dragTool.userData.dragMoved=true}});c.addEventListener('pointerup',e=>{if(!dragTool)return;const tool=dragTool,moved=tool.userData.dragMoved;dragTool=null;tool.userData.dragMoved=false;controls.enabled=true;if(!moved)useInstrument(tool);})}
+function useInstrument(tool){if(tool.userData.type==='burner')heatNearestVessel(tool);else if(tool.userData.type==='petri')toast('Đĩa petri','Đĩa đang sẵn sàng chứa mẫu. Dùng pipet để nhỏ hóa chất.','info');else if(tool.userData.type.startsWith('tube'))toast('Ống nghiệm',`Nhiệt độ ${tool.userData.temperature.toFixed(1)} °C · pH ${getToolPh(tool).toFixed(2)}`,'info')}
+function allVessels(){return [beakerGroup,...placedInstruments].filter(x=>x?.userData?.type==='petri'||x?.userData?.type?.startsWith('tube'))}function nearestVessel(source){return allVessels().sort((a,b)=>a.position.distanceTo(source.position)-b.position.distanceTo(source.position))[0]}
+function audioReady(){if(!window.AudioContext&&!window.webkitAudioContext)return null;const C=window.AudioContext||window.webkitAudioContext;if(!window._chemAudio)window._chemAudio=new C();if(window._chemAudio.state==='suspended')window._chemAudio.resume();return window._chemAudio}
+function playDropSound(){const a=audioReady();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(880,a.currentTime);o.frequency.exponentialRampToValueAtTime(250,a.currentTime+.16);g.gain.setValueAtTime(.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(.12,a.currentTime+.015);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.2);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.21)}
+function playBurnerSound(){const a=audioReady();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type='sawtooth';o.frequency.setValueAtTime(75+Math.random()*20,a.currentTime);g.gain.setValueAtTime(.0001,a.currentTime);g.gain.exponentialRampToValueAtTime(.045,a.currentTime+.04);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+.42);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.45)}
+function dropLiquidToPetri(chemId){const chem=CHEM_MAP[chemId],v=beakerGroup;if(!chem||!v)return;v.userData.chemIds.push(chemId);v.userData.temperature=v.userData.temperature||25;v.userData.sampleVisuals=v.userData.sampleVisuals||[];const color=new THREE.Color(chem.hex),geo=new THREE.SphereGeometry(.075,lowPowerMode?6:10,lowPowerMode?5:8),drop=new THREE.Mesh(geo,new THREE.MeshPhysicalMaterial({color,transparent:true,opacity:.85,roughness:.1}));drop.position.set((Math.random()-.5)*.45,.34,(Math.random()-.5)*.45);drop.userData={vy:-1.6,life:0};scene.add(drop);v.userData.sampleVisuals.push(drop);playDropSound();toast('Nhỏ giọt',`${chem.f} đã rơi trực tiếp vào đĩa petri.`,'ok');updateLiveReadouts()}
+
+function heatNearestVessel(burner){const v=nearestVessel(burner);if(!v){toast('Khò lửa','Đặt ống nghiệm hoặc đĩa petri gần khò lửa.','warning');return}playBurnerSound();v.userData.heat=Math.min(75,(v.userData.heat||0)+15);toast('Khò lửa',`Đã tăng nhiệt ${v.userData.temperature.toFixed(0)} → ${(v.userData.temperature+15).toFixed(0)} °C.`,'warning');updateLiveReadouts()}
+function getToolPh(v){const ids=v.userData.chemIds||[];if(!ids.length)return 7;const values=ids.map(id=>CHEM_MAP[id]?.ph).filter(x=>x!=null);return values.length?values.reduce((a,b)=>a+b,0)/values.length:7}
+function updateLiveReadouts(){const el=$('liveReadouts');if(!el)return;const vessels=allVessels();if(!vessels.length){el.innerHTML='<div class="measurement-empty">Chưa có mẫu đo</div>';return}el.innerHTML=vessels.map((v,i)=>`<div class="measurement-card"><span class="name">${v.userData.type==='petri'?'Đĩa petri':v.userData.type==='tube-long'?'Ống dài':'Ống ngắn'} ${i+1}</span><span class="read">${v.userData.temperature.toFixed(1)}°C</span><span class="read ph">pH ${getToolPh(v).toFixed(2)}</span></div>`).join('')}
+let instrumentUiTimer=0;function updateInstrumentPhysics(dt){for(const v of allVessels()){if(v.userData.heat>0){v.userData.temperature=Math.min(100,v.userData.temperature+v.userData.heat*dt*.18);v.userData.heat=Math.max(0,v.userData.heat-dt*4)}else v.userData.temperature+=(25-v.userData.temperature)*dt*.025}instrumentUiTimer-=dt;if(instrumentUiTimer<=0){instrumentUiTimer=.25;updateLiveReadouts()}}
+function triggerSplash(){if(!webglOK||!scene)return;for(let i=0;i<18;i++){const s=sparkParticles[i];if(!s)continue;s.visible=true;s.position.set(0,BASE_Y+curLevel,0);const a=Math.random()*Math.PI*2,r=.7+Math.random()*1.2;s.userData.vx=Math.cos(a)*r;s.userData.vz=Math.sin(a)*r;s.userData.vy=1+Math.random()*1.8;s.userData.life=.8+Math.random()*.5;s.userData.maxLife=s.userData.life;s.material.color.set(0x76d7ff);s.material.opacity=.9}}
+const R_BEAKER=1.05,H_BEAKER=.18,BASE_Y=.12;
+let scene,camera,renderer,controls,clock,beakerGroup,liquid,liquidMat,surface,surfaceMat,hotPlate,hotGlow;
+let gasParticles=[],precipParticles=[],smokeParticles=[],fireParticles=[],sparkParticles=[];
+let droppingModels=[];
+let shockwaves=[];
+let curLevel=0.3,targetLevel=0.3,curColor=new THREE.Color('#e9f4fa'),targetColor=new THREE.Color('#e9f4fa');
+let mixT=0,shake=0,shakeDecay=0;
+let fxState={gas:0,precip:0,smoke:0,glow:0,heat:0,fire:0,boom:0,color:'#e9f4fa',gasColor:'#fff',precipColor:'#fff',smokeColor:'#fff'};
+let webglOK=true,fireIntensity=0,fireSpawnAcc=0,animErrCount=0;
+const lowPowerMode=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.maxTouchPoints>0&&innerWidth<700);
+
+function initThree(){
+  const vp=viewportEl;
+  try{renderer=new THREE.WebGLRenderer({antialias:!lowPowerMode,alpha:true,powerPreference:'high-performance'});}
+  catch(e){webglOK=false;vp.innerHTML='<div style="position:absolute;inset:0;display:grid;place-items:center;color:#6e7681;text-align:center;padding:20px"><div><i class="bi bi-gpu-card" style="font-size:32px;opacity:.4;display:block;margin-bottom:12px"></i>WebGL không được hỗ trợ</div></div>';return;}
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,lowPowerMode?1:1.5));
+  renderer.setSize(vp.clientWidth,vp.clientHeight);
+  renderer.shadowMap.enabled=!lowPowerMode;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+  vp.appendChild(renderer.domElement);
+  bindToolInteraction();
+
+  scene=new THREE.Scene();
+  scene.fog=new THREE.Fog(0x0a0d12,10,26);
+  camera=new THREE.PerspectiveCamera(38,vp.clientWidth/vp.clientHeight,0.1,100);
+  camera.position.set(3.6,3.2,4.8);
+  controls=new OrbitControls(camera,renderer.domElement);
+  controls.target.set(0,1.3,0);
+  controls.enableDamping=true;controls.dampingFactor=.075;
+  controls.minDistance=2.8;controls.maxDistance=12;
+  controls.maxPolarAngle=Math.PI*.54;controls.enablePan=false;
+  controls.autoRotate=true;controls.autoRotateSpeed=.35;
+
+  scene.add(new THREE.HemisphereLight(0x8fb8d8,0x0a1218,.9));
+  const key=new THREE.DirectionalLight(0xffffff,2.1);key.position.set(5,8,6);key.castShadow=true;
+  key.castShadow=!lowPowerMode;key.shadow.mapSize.set(lowPowerMode?512:1024,lowPowerMode?512:1024);key.shadow.camera.near=1;key.shadow.camera.far=22;
+  key.shadow.camera.left=-4;key.shadow.camera.right=4;key.shadow.camera.top=4;key.shadow.camera.bottom=-4;key.shadow.bias=-.0008;
+  scene.add(key);
+  const rimLight=new THREE.DirectionalLight(0x58a6ff,.55);rimLight.position.set(-4,3.4,-4);scene.add(rimLight);
+  const fill=new THREE.DirectionalLight(0xbc8cff,.35);fill.position.set(4.5,2.4,-3.4);scene.add(fill);
+
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(9,72),new THREE.MeshStandardMaterial({color:0x0a0e14,roughness:.9,metalness:.1}));
+  floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+  const grid=new THREE.GridHelper(18,36,0x1e2733,0x141a22);grid.position.y=.002;grid.material.transparent=true;grid.material.opacity=.6;scene.add(grid);
+
+  hotPlate=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.6,.22,64),new THREE.MeshStandardMaterial({color:0x1a1f26,roughness:.5,metalness:.65}));
+  hotPlate.position.y=-.11;hotPlate.receiveShadow=true;hotPlate.castShadow=true;scene.add(hotPlate);
+  hotGlow=new THREE.Mesh(new THREE.CylinderGeometry(1.52,1.52,.24,64,1,true),new THREE.MeshBasicMaterial({color:0xff6b35,transparent:true,opacity:0,side:THREE.DoubleSide}));
+  hotGlow.position.y=-.11;scene.add(hotGlow);
+
+  beakerGroup=new THREE.Group();scene.add(beakerGroup);
+  const glassMat=new THREE.MeshPhysicalMaterial({color:0xbfe8ff,metalness:0,roughness:.04,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide,clearcoat:1,clearcoatRoughness:.03});
+  const wall=new THREE.Mesh(new THREE.CylinderGeometry(R_BEAKER,R_BEAKER,.11,24,1,true),glassMat);
+  wall.position.y=.055;wall.renderOrder=4;beakerGroup.add(wall);
+  const bottom=new THREE.Mesh(new THREE.CylinderGeometry(R_BEAKER*.98,R_BEAKER*.98,.035,24),glassMat);
+  bottom.position.y=.018;bottom.renderOrder=4;beakerGroup.add(bottom);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(R_BEAKER,.035,10,lowPowerMode?32:64),new THREE.MeshStandardMaterial({color:0x9ed8ea,metalness:.2,roughness:.25,transparent:true,opacity:.7}));
+  rim.rotation.x=Math.PI/2;rim.position.y=.13;rim.renderOrder=5;beakerGroup.add(rim);
+
+  liquidMat=new THREE.MeshPhysicalMaterial({color:0xe9f4fa,roughness:.08,metalness:0,transparent:true,opacity:.92,clearcoat:1,clearcoatRoughness:.05,sheen:.5});
+  liquid=new THREE.Mesh(new THREE.CylinderGeometry(R_BEAKER*.955,R_BEAKER*.94,1,lowPowerMode?32:64,1,false),liquidMat);
+  liquid.renderOrder=2;liquid.visible=false; // Không dựng hình trụ chất lỏng; thể tích chỉ dâng bằng mặt chất lỏng phẳng.
+  surfaceMat=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.05,metalness:0,transparent:true,opacity:.35,clearcoat:1,clearcoatRoughness:.02});
+  surface=new THREE.Mesh(new THREE.CircleGeometry(R_BEAKER*.95,lowPowerMode?32:64),surfaceMat);
+  surface.rotation.x=-Math.PI/2;surface.renderOrder=3;beakerGroup.add(surface);
+  beakerGroup.userData={type:'petri',default:true,chemIds:[],temperature:25,heat:0,sampleVisuals:[]};
+
+  // Reduced particle counts
+  const bGeo=new THREE.SphereGeometry(.034,6,6);
+  for(let i=0;i<32;i++){const b=new THREE.Mesh(bGeo,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.15,transparent:true,opacity:.5}));b.visible=false;b.userData={vy:.4+Math.random()*.9,angle:Math.random()*Math.PI*2,r:Math.random()*R_BEAKER*.78,spin:(Math.random()-.5)*2.4};beakerGroup.add(b);gasParticles.push(b);}
+  const pGeo=new THREE.SphereGeometry(.028,5,5);
+  for(let i=0;i<60;i++){const p=new THREE.Mesh(pGeo,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9,transparent:true,opacity:.92}));p.visible=false;p.userData={vy:.16+Math.random()*.38,angle:Math.random()*Math.PI*2,r:Math.random()*R_BEAKER*.8,spin:(Math.random()-.5)*1.3,settled:false,scale:.6+Math.random()*1.0};p.scale.setScalar(p.userData.scale);beakerGroup.add(p);precipParticles.push(p);}
+  const sGeo=new THREE.SphereGeometry(.09,5,5);
+  for(let i=0;i<24;i++){const s=new THREE.Mesh(sGeo,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false}));s.visible=false;s.userData={vy:.35+Math.random()*.45,vx:(Math.random()-.5)*.28,vz:(Math.random()-.5)*.28,life:0,maxLife:1.8+Math.random()*1.4,size:.6+Math.random()*.9};s.scale.setScalar(s.userData.size);scene.add(s);smokeParticles.push(s);}
+  const fGeo=new THREE.SphereGeometry(.06,5,5);
+  for(let i=0;i<40;i++){const f=new THREE.Mesh(fGeo,new THREE.MeshBasicMaterial({color:0xff7a2f,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));f.visible=false;f.userData={vy:.7+Math.random()*.9,vx:(Math.random()-.5)*.25,vz:(Math.random()-.5)*.25,life:0,maxLife:.7+Math.random()*.6,size:.6+Math.random()*.9};f.scale.setScalar(f.userData.size);scene.add(f);fireParticles.push(f);}
+  const spGeo=new THREE.SphereGeometry(.045,4,4);
+  for(let i=0;i<70;i++){const sp=new THREE.Mesh(spGeo,new THREE.MeshBasicMaterial({color:0xffcc44,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));sp.visible=false;sp.userData={vx:0,vy:0,vz:0,life:0,maxLife:0,size:.5+Math.random()*.8};scene.add(sp);sparkParticles.push(sp);}
+
+  clock=new THREE.Clock();
+  new ResizeObserver(onResize).observe(vp);
+  window.addEventListener('orientationchange',()=>setTimeout(onResize,250));
+  animate();
+}
+function onResize(){
+  if(!webglOK)return;
+  const w=viewportEl.clientWidth,h=viewportEl.clientHeight;
+  if(!w||!h)return;
+  camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);
+}
+
+/* ============================================================
+   3D CHEMICAL MODELS
+   ============================================================ */
+function createChemicalModel(chem){
+  const group=new THREE.Group();
+  const col=new THREE.Color(chem.hex);
+  const form=chem.form||'liquid';
+  if(form==='solid'){
+    const mat=new THREE.MeshStandardMaterial({color:col,roughness:.55,metalness:.35});
+    const count=3+Math.floor(Math.random()*3);
+    for(let i=0;i<count;i++){const size=0.09+Math.random()*0.07;const g=new THREE.DodecahedronGeometry(size,0);const m=new THREE.Mesh(g,mat);m.position.set((Math.random()-.5)*.22,(Math.random()-.5)*.22,(Math.random()-.5)*.22);m.rotation.set(Math.random()*6,Math.random()*6,Math.random()*6);group.add(m);}
+  }else if(form==='powder'){
+    const mat=new THREE.MeshStandardMaterial({color:col,roughness:.95});
+    const count=14+Math.floor(Math.random()*6);
+    for(let i=0;i<count;i++){const size=0.028+Math.random()*0.03;const g=new THREE.SphereGeometry(size,4,4);const m=new THREE.Mesh(g,mat);const r=Math.random()*.22,th=Math.random()*Math.PI*2,ph=Math.random()*Math.PI;m.position.set(Math.sin(ph)*Math.cos(th)*r,Math.sin(ph)*Math.sin(th)*r*.6,Math.cos(ph)*r);group.add(m);}
+  }else if(form==='liquid'){
+    const mat=new THREE.MeshPhysicalMaterial({color:col,roughness:.08,transparent:true,opacity:.85,clearcoat:1});
+    const count=3+Math.floor(Math.random()*3);
+    for(let i=0;i<count;i++){const size=0.11+Math.random()*0.07;const g=new THREE.SphereGeometry(size,10,10);const m=new THREE.Mesh(g,mat);m.position.set((Math.random()-.5)*.14,-Math.random()*.18,(Math.random()-.5)*.14);m.scale.set(1,1.25,1);group.add(m);}
+  }else if(form==='gas'){
+    const mat=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.4,depthWrite:false,blending:THREE.AdditiveBlending});
+    const count=8+Math.floor(Math.random()*4);
+    for(let i=0;i<count;i++){const size=0.09+Math.random()*0.07;const g=new THREE.SphereGeometry(size,6,6);const m=new THREE.Mesh(g,mat);m.position.set((Math.random()-.5)*.28,(Math.random()-.5)*.28,(Math.random()-.5)*.28);group.add(m);}
+  }
+  return group;
+}
+
+function spawnChemicalDrop(chemId){
+  if(!webglOK)return;
+  const chem=CHEM_MAP[chemId];if(!chem)return;
+  const model=createChemicalModel(chem);
+  const angle=Math.random()*Math.PI*2,r=0.15+Math.random()*0.35;
+  model.position.set(Math.cos(angle)*r,4.2+Math.random()*0.6,Math.sin(angle)*r);
+  model.userData={dropVy:0,dropTarget:BASE_Y+0.06+Math.random()*0.06,life:0,maxLife:3.0,splashed:false,chem};
+  scene.add(model);droppingModels.push(model);
+}
+
+/* ============================================================
+   FIRE + EXPLOSION
+   ============================================================ */
+function spawnFireAtSurface(){
+  // Find ONE invisible slot only (fixes perf bug)
+  for(let i=0;i<fireParticles.length;i++){
+    const f=fireParticles[i];
+    if(f.visible&&f.userData.life>0)continue;
+    f.visible=true;
+    const a=Math.random()*Math.PI*2,r=Math.random()*R_BEAKER*.85;
+    f.position.set(Math.cos(a)*r,BASE_Y+curLevel+0.02,Math.sin(a)*r);
+    f.userData.life=f.userData.maxLife;
+    const c=new THREE.Color().setHSL(0.06+Math.random()*0.06,1,0.55+Math.random()*0.15);
+    f.material.color.copy(c);f.material.opacity=0.9;
+    return;
+  }
+}
+function triggerExplosion(intensity=1){
+  if(!webglOK)return;
+  const sw=new THREE.Mesh(new THREE.TorusGeometry(0.15,0.05,6,24),new THREE.MeshBasicMaterial({color:0xffaa33,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false}));
+  sw.position.set(0,BASE_Y+curLevel+0.1,0);sw.rotation.x=Math.PI/2;scene.add(sw);
+  shockwaves.push({mesh:sw,life:0.7,maxLife:0.7,intensity});
+  const origin=new THREE.Vector3(0,BASE_Y+curLevel+0.1,0);
+  let spawned=0;
+  for(let i=0;i<sparkParticles.length&&spawned<40;i++){
+    const sp=sparkParticles[i];if(sp.visible&&sp.userData.life>0)continue;
+    sp.visible=true;sp.position.copy(origin);
+    const speed=2.5+Math.random()*4*intensity;
+    const dir=new THREE.Vector3(Math.random()-.5,Math.random()*.6+.3,Math.random()-.5).normalize();
+    sp.userData.vx=dir.x*speed;sp.userData.vy=dir.y*speed;sp.userData.vz=dir.z*speed;
+    sp.userData.life=1.0+Math.random()*0.6;sp.userData.maxLife=sp.userData.life;
+    sp.material.opacity=1;
+    sp.material.color.setHSL(0.04+Math.random()*0.1,1,0.55+Math.random()*0.2);
+    spawned++;
+  }
+  shakeDecay=Math.max(shakeDecay,intensity*0.25);
+  shake=Math.max(shake,intensity*0.18);
+  const flash=new THREE.PointLight(0xff8844,intensity*8,6);
+  flash.position.set(0,BASE_Y+curLevel+0.5,0);
+  scene.add(flash);
+  setTimeout(()=>scene.remove(flash),180);
+}
+
+/* ============================================================
+   ANIMATE (try/catch protected)
+   ============================================================ */
+function animate(){
+  requestAnimationFrame(animate);
+  if(!webglOK)return;
+  try{animateFrame();}catch(err){
+    animErrCount++;
+    console.warn('anim error',err);
+    if(animErrCount>10){/* still keep rendering */animErrCount=0;}
+  }
+}
+function animateFrame(){
+  const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
+  updateInstrumentPhysics(dt);
+  curLevel+=(targetLevel-curLevel)*Math.min(1,dt*3);
+  const h=Math.max(.001,curLevel),dishLevel=Math.min(.16,h*.08);
+  liquid.visible=false;
+  surface.position.y=BASE_Y+dishLevel;surface.visible=curLevel>.03;
+  curColor.lerp(targetColor,Math.min(1,dt*3.2));
+  liquidMat.color.copy(curColor);
+  surfaceMat.color.copy(curColor).lerp(new THREE.Color(0xffffff),.35);
+  if(mixT>0)mixT=Math.max(0,mixT-dt);
+  const inten=mixT>0?Math.min(1,mixT/1.4):0;
+  if(shakeDecay>0)shakeDecay=Math.max(0,shakeDecay-dt*1.2);
+  if(shake>0.001)shake=Math.max(0,shake*Math.pow(0.001,dt));
+  const baseShake=shake;
+  beakerGroup.position.x=Math.sin(t*42)*(baseShake+inten*0.006);
+  beakerGroup.position.z=Math.cos(t*37)*(baseShake+inten*0.006);
+  beakerGroup.position.y=Math.sin(t*55)*baseShake*0.4;
+  const hN=Math.min(1,state.temp/100);
+  hotGlow.material.opacity=hN*.3*(.85+Math.sin(t*3)*.15);
+  hotPlate.material.emissive=new THREE.Color(0xff6b35).multiplyScalar(hN*.22);
+
+  // Direct liquid drops into the default petri
+  for(let i=beakerGroup.userData.sampleVisuals.length-1;i>=0;i--){const d=beakerGroup.userData.sampleVisuals[i];if(!d.userData?.vy)continue;d.userData.life+=dt;d.position.y-=1.6*dt;if(d.position.y<=.17){scene.remove(d);beakerGroup.userData.sampleVisuals.splice(i,1);}}
+  // dropping
+  for(let i=droppingModels.length-1;i>=0;i--){
+    const m=droppingModels[i];
+    m.userData.life+=dt;m.userData.dropVy-=dt*4.5;m.position.y+=m.userData.dropVy*dt;
+    m.rotation.x+=dt*3;m.rotation.y+=dt*4;
+    if(!m.userData.splashed&&m.position.y<=m.userData.dropTarget){
+      m.userData.splashed=true;
+      let sp=0;
+      for(const s of sparkParticles){if(sp>=6)break;if(s.visible&&s.userData.life>0)continue;
+        s.visible=true;s.position.copy(m.position);
+        const sp2=0.8+Math.random()*1.2,dir=new THREE.Vector3(Math.random()-.5,Math.random()*.4+.2,Math.random()-.5).normalize();
+        s.userData.vx=dir.x*sp2;s.userData.vy=dir.y*sp2;s.userData.vz=dir.z*sp2;
+        s.userData.life=.6+Math.random()*.4;s.userData.maxLife=s.userData.life;s.material.opacity=1;
+        s.material.color.copy(new THREE.Color(m.userData.chem.hex));sp++;
+      }
+    }
+    if(m.userData.splashed){const k=Math.max(0,1-(m.userData.life-1.0)/1.5);m.scale.setScalar(Math.max(.001,k));if(k<=.01){scene.remove(m);droppingModels.splice(i,1);continue;}}
+    if(m.userData.life>m.userData.maxLife){scene.remove(m);droppingModels.splice(i,1);}
+  }
+
+  // gas
+  const gasA=fxState.gas>.02,topY=BASE_Y+h-.03;
+  for(let i=0;i<gasParticles.length;i++){
+    const b=gasParticles[i];
+    if(!gasA||i/gasParticles.length>fxState.gas*.95+.05){b.visible=false;continue;}
+    if(!b.visible){b.visible=true;b.position.y=BASE_Y+.04+Math.random()*.2;b.userData.r=Math.random()*R_BEAKER*.78;b.userData.angle=Math.random()*Math.PI*2;}
+    const u=b.userData;b.position.y+=u.vy*dt*(.6+inten*1.8);u.angle+=u.spin*dt*(.6+inten*2.6);
+    b.position.x=Math.cos(u.angle)*u.r;b.position.z=Math.sin(u.angle)*u.r;
+    const d=Math.abs(b.position.y-surface.position.y);b.material.opacity=.5*Math.min(1,d*3);b.material.color.set(fxState.gasColor);
+    if(b.position.y>topY){b.position.y=BASE_Y+.05+Math.random()*.12;u.r=Math.random()*R_BEAKER*.78;}
+  }
+  // precip
+  const prA=fxState.precip>.02;
+  for(let i=0;i<precipParticles.length;i++){
+    const p=precipParticles[i];
+    if(!prA||i/precipParticles.length>fxState.precip*.95+.05){p.visible=false;continue;}
+    if(!p.visible){p.visible=true;p.material.color.set(fxState.precipColor);p.userData.settled=false;p.position.y=.2+Math.random()*Math.max(.2,curLevel);p.userData.angle=Math.random()*Math.PI*2;p.userData.r=Math.random()*R_BEAKER*.8;}
+    const u=p.userData;
+    if(!u.settled){p.position.y-=u.vy*dt;u.angle+=u.spin*dt*(.6+inten*1.8);p.position.x=Math.cos(u.angle)*u.r;p.position.z=Math.sin(u.angle)*u.r;if(p.position.y<=.1){p.position.y=.1;u.settled=true;}}
+  }
+  // smoke
+  const smA=fxState.smoke>.02;
+  for(const s of smokeParticles){
+    if(!smA){s.visible=false;continue;}
+    if(!s.visible||s.userData.life<=0){s.visible=true;s.userData.life=s.userData.maxLife;s.position.set((Math.random()-.5)*R_BEAKER*1.1,surface.position.y+.05,(Math.random()-.5)*R_BEAKER*1.1);s.material.color.set(fxState.smokeColor);s.scale.setScalar(s.userData.size*.5);}
+    const u=s.userData;u.life-=dt;const k=u.life/u.maxLife;
+    s.position.y+=u.vy*dt;s.position.x+=u.vx*dt;s.position.z+=u.vz*dt;
+    s.scale.setScalar(u.size*(1.4-k*.6));s.material.opacity=Math.max(0,k*.3*fxState.smoke);
+    if(u.life<=0)s.visible=false;
+  }
+  // fire — LIMIT spawn to 2 per frame (fix perf bug)
+  const fireTarget=fxState.fire||0;
+  fireIntensity+=(fireTarget-fireIntensity)*Math.min(1,dt*2);
+  if(fireIntensity>0.02){
+    fireSpawnAcc+=fireIntensity*30*dt;
+    let toSpawn=Math.min(2,Math.floor(fireSpawnAcc));
+    fireSpawnAcc-=toSpawn;
+    while(toSpawn-->0)spawnFireAtSurface();
+  }
+  for(const f of fireParticles){
+    if(!f.visible)continue;
+    f.userData.life-=dt;const k=f.userData.life/f.userData.maxLife;
+    if(k<=0){f.visible=false;f.material.opacity=0;continue;}
+    f.position.y+=f.userData.vy*dt;f.position.x+=f.userData.vx*dt;f.position.z+=f.userData.vz*dt;
+    f.scale.setScalar(f.userData.size*(1.4-k*.8));
+    f.material.opacity=Math.max(0,k*.95*(.6+fireIntensity*.6));
+    const c=new THREE.Color().setHSL(.08-k*.07,1,.65-k*.25);f.material.color.lerp(c,Math.min(1,dt*6));
+  }
+  // sparks
+  for(const sp of sparkParticles){
+    if(!sp.visible)continue;
+    sp.userData.life-=dt;const k=sp.userData.life/sp.userData.maxLife;
+    if(k<=0){sp.visible=false;sp.material.opacity=0;continue;}
+    sp.userData.vy-=dt*4.5;sp.position.x+=sp.userData.vx*dt;sp.position.y+=sp.userData.vy*dt;sp.position.z+=sp.userData.vz*dt;
+    sp.material.opacity=Math.max(0,k);sp.scale.setScalar(sp.userData.size*(.6+k*.6));
+  }
+  // shockwaves
+  for(let i=shockwaves.length-1;i>=0;i--){
+    const sw=shockwaves[i];sw.life-=dt;const k=1-sw.life/sw.maxLife;
+    if(k>=1){scene.remove(sw.mesh);sw.mesh.geometry.dispose();sw.mesh.material.dispose();shockwaves.splice(i,1);continue;}
+    sw.mesh.scale.setScalar(1+k*6*sw.intensity);sw.mesh.material.opacity=Math.max(0,.9*(1-k));
+  }
+  // emissive
+  const glowStrength=(fxState.glow||0)+(fxState.heat>0?Math.min(1,fxState.heat/22):0)+fireIntensity*.5;
+  if(glowStrength>.02){const pulse=.75+Math.sin(t*3.4)*.25;liquidMat.emissive=new THREE.Color(0xff7a2f).multiplyScalar(glowStrength*.22*pulse);}
+  else liquidMat.emissive=new THREE.Color(0x000000);
+  controls.autoRotate=(mixT>0);controls.update();
+  renderer.render(scene,camera);
+}
+
+function renderReagentInspector(c){const el=$('reagentInspector');if(!el||!c)return;const knownValences={fe:'2, 3',zn:'2',mg:'2',al:'3',cu:'1, 2',h2o2:'—',mno2:'4'};const val=c.valence??(c.cation?VALENCE[c.cation]:(knownValences[c.id]||'—')),oxid=c.oxidation||((c.cation&&c.anion)?`${val>0?'+':''}${val}`:'đa hóa trị'),hits=[];for(const other of CHEMICALS.slice(0,45)){if(other.id===c.id)continue;const r=analyzePair(c,other,state.temp);if(r)hits.push(`${c.f} + ${other.f} → ${r.equation}`)}const unique=[...new Set(hits)].slice(0,5);el.innerHTML=`<div class="reagent-title"><div class="formula">${c.f}</div><div class="name">${c.n}</div></div><div class="reagent-badges"><span class="reagent-badge">${c.cat}</span><span class="reagent-badge">${c.type}</span><span class="reagent-badge">${FORM_LABEL[c.form]||c.form}</span></div><div class="reagent-facts"><div class="reagent-fact"><div class="k">Hóa trị</div><div class="v">${val}</div></div><div class="reagent-fact"><div class="k">Số oxi hóa</div><div class="v">${oxid}</div></div><div class="reagent-fact"><div class="k">Trạng thái</div><div class="v">${c.state}</div></div><div class="reagent-fact"><div class="k">pH mô phỏng</div><div class="v">${c.ph??'—'}</div></div><div class="reagent-fact"><div class="k">Khối lượng mol</div><div class="v">${c.molarMass||'chưa khai báo'}</div></div><div class="reagent-fact"><div class="k">Nóng chảy / sôi</div><div class="v">${c.meltingPoint??'chưa khai báo'} / ${c.boilingPoint??'chưa khai báo'}</div></div><div class="reagent-fact"><div class="k">Cấu hình e−</div><div class="v">${c.electronConfig||'đang tra cứu'}</div></div><div class="reagent-fact"><div class="k">Ion</div><div class="v">${c.cation||'—'} / ${c.anion||'—'}</div></div></div><div class="reagent-reactions"><h6><i class="bi bi-lightning-charge"></i> Phản ứng khả dụng</h6>${unique.length?unique.map(x=>`<div class="reagent-reaction">${x}</div>`).join(''):'<div class="reagent-reaction" style="color:var(--txt-3)">Chưa có phương trình đặc hiệu; có thể dùng chất này trong Sandbox.</div>'}</div>`}
+
+/* ============================================================
+   ANALYSIS / HUD / LOG
+   ============================================================ */
+const analysisEl=$('analysis'),analysisCountEl=$('analysisCount'),viewportHudEl=$('viewportHud'),viewportEmptyEl=$('viewportEmpty');
+const STATUS_META={ok:{cls:'ok',icon:'check-circle-fill',label:'CÓ PHẢN ỨNG'},warning:{cls:'warning',icon:'exclamation-triangle-fill',label:'PHẢN ỨNG MẠNH'},danger:{cls:'danger',icon:'radioactive',label:'NGUY HIỂM'},none:{cls:'idle',icon:'dash-circle',label:'KHÔNG PHẢN ỨNG'},idle:{cls:'idle',icon:'beaker',label:'CHƯA CHỌN'}};
+function renderAnalysis(res){
+  if(!res.chems.length){analysisEl.innerHTML=`<div class="empty-analysis"><i class="bi bi-clipboard2-data"></i><p>Thả hóa chất vào đĩa petri 3D để phân tích</p></div>`;analysisCountEl.textContent='—';return;}
+  const m=STATUS_META[res.status];
+  let html=`<div class="status-block ${m.cls}"><i class="bi bi-${m.icon} lead"></i><div><div class="title">${m.label}</div><div class="sub">${res.chems.length} chất · ${state.volume} mL · ${state.temp} °C</div></div></div>
+    <div class="metric-grid">
+      <div class="metric"><div class="k">pH dự đoán</div><div class="v">${res.ph.toFixed(2)}</div></div>
+      <div class="metric"><div class="k">Số phản ứng</div><div class="v">${res.reactions.length}</div></div>
+      <div class="metric"><div class="k">Tỏa nhiệt</div><div class="v">${res.fx.heat>0?'+'+res.fx.heat:'—'}<span class="u">°C</span></div></div>
+      <div class="metric"><div class="k">Thể tích</div><div class="v">${state.volume}<span class="u">mL</span></div></div>
+    </div>`;
+  if(res.reactions.length){
+    html+=`<div class="section-title"><i class="bi bi-diagram-3"></i> Phản ứng xảy ra</div>`;
+    res.reactions.forEach(r=>{
+      const ic={danger:'radioactive',warning:'exclamation-triangle-fill',ok:'check2-circle'};
+      const f=r.fx||{};const fxL=[];
+      if(f.precip)fxL.push({k:'Kết tủa',i:'circle-fill'});
+      if(f.gas)fxL.push({k:'Sủi bọt',i:'bubbles'});
+      if(f.heat)fxL.push({k:'Tỏa nhiệt',i:'thermometer-half',cls:'hot'});
+      if(f.smoke)fxL.push({k:'Khí độc',i:'radioactive',cls:'toxic'});
+      if(f.fire)fxL.push({k:'Bốc lửa',i:'fire',cls:'fire'});
+      if(f.boom)fxL.push({k:'Nổ',i:'lightning-fill',cls:'boom'});
+      if(f.color)fxL.push({k:'Đổi màu',i:'palette-fill'});
+      if(f.glow)fxL.push({k:'Phát sáng',i:'brightness-high'});
+      html+=`<div class="reaction ${r.level}"><div class="reaction-head"><i class="bi bi-${ic[r.level]||'info-circle'}"></i><span>${r.name}</span><span class="type">${r.type}</span></div><div class="reaction-desc">${r.desc}</div><div class="reaction-eq">${r.equation}</div>${fxL.length?`<div class="reaction-fx">${fxL.map(x=>`<span class="fx on ${x.cls||''}"><i class="bi bi-${x.i}"></i>${x.k}</span>`).join('')}</div>`:''}</div>`;
+    });
+  }
+  if(res.blocked.length){
+    html+=`<div class="section-title"><i class="bi bi-fire"></i> Cần đun nóng</div>`;
+    res.blocked.forEach(r=>{
+      html+=`<div class="reaction blocked"><div class="reaction-head"><i class="bi bi-fire"></i><span>${r.name}</span><span class="type">≥ ${r.needTemp||60} °C</span></div><div class="reaction-desc">${r.desc}</div><div class="reaction-eq">${r.equation}</div></div>`;
+    });
+  }
+  if(!res.reactions.length&&!res.blocked.length){
+    html+=`<div class="reaction blocked"><div class="reaction-head"><i class="bi bi-dash-circle"></i><span>Không có phản ứng</span></div><div class="reaction-desc">Các chất không phản ứng ở điều kiện hiện tại.</div></div>`;
+  }
+  analysisEl.innerHTML=html;
+  analysisCountEl.textContent=`${res.reactions.length} phản ứng`;
+}
+function renderHud(res){
+  if(!res.chems.length){viewportHudEl.innerHTML=`<div class="hud-tag info"><i class="bi bi-beaker"></i>Đĩa petri rỗng</div>`;viewportEmptyEl.classList.remove('hidden');return;}
+  viewportEmptyEl.classList.add('hidden');
+  const m=STATUS_META[res.status];
+  viewportHudEl.innerHTML=`<div class="hud-tag ${m.cls}"><i class="bi bi-${m.icon}"></i>${m.label}</div><div class="hud-tag info"><i class="bi bi-droplet-half"></i>pH ${res.ph.toFixed(2)}</div><div class="hud-tag info"><i class="bi bi-thermometer-half"></i>${state.temp} °C</div><div class="hud-tag info"><i class="bi bi-capsule"></i>${res.chems.length} chất</div>`;
+  $('statusPh').textContent=`pH ${res.ph.toFixed(2)}`;
+  $('statusTemp').textContent=`${state.temp} °C`;
+}
+const logBodyEl=$('logBody'),logEmptyEl=$('logEmpty');
+function addLog(res,phen,verdict){
+  logs.unshift({t:new Date().toLocaleTimeString('vi-VN'),chems:res.chems.map(c=>c.f).join(' + '),phen,temp:state.temp+' °C',ph:res.ph.toFixed(2),status:verdict,reactions:res.reactions.slice()});
+  if(logs.length>80)logs.pop();renderLog();
+}
+function renderLog(){
+  if(!logs.length){logEmptyEl.style.display='';logBodyEl.innerHTML='';return;}
+  logEmptyEl.style.display='none';
+  const vl={ok:'Có',warning:'Mạnh',danger:'Nguy hiểm',none:'Không'};
+  logBodyEl.innerHTML=logs.map(l=>`<tr><td class="t">${l.t}</td><td class="chems">${l.chems}</td><td class="phen">${l.phen}</td><td class="temp">${l.temp}</td><td class="mono" style="color:var(--txt-2);">${l.ph}</td><td><span class="verdict ${l.status}">${vl[l.status]||l.status}</span></td></tr>`).join('');
+}
+
+/* ============================================================
+   LAB ACTIONS
+   ============================================================ */
+function refreshLab(){
+  const res=evaluateLab([...state.selected],{temp:state.temp,volume:state.volume});
+  state.lastResult=res;
+  const lv=.35+(state.volume/600)*1.35;
+  targetLevel=THREE.MathUtils.clamp(lv,.35,1.8);
+  targetColor.copy(res.color);fxState=res.fx;
+  renderAnalysis(res);renderHud(res);
+  $('btnRun').disabled=res.chems.length===0;
+  return res;
+}
+function runExperiment(){
+  const res=evaluateLab([...state.selected],{temp:state.temp,volume:state.volume});
+  if(!res.chems.length){toast('Chưa chọn hóa chất','Hãy kéo ít nhất một chất vào cốc.','warning');return;}
+  curLevel=.08;mixT=3.2;fxState=res.fx;
+  precipParticles.forEach(p=>{p.visible=false;p.userData.settled=false;});
+  smokeParticles.forEach(s=>{s.visible=false;s.userData.life=0;});
+  fireParticles.forEach(f=>{f.visible=false;f.userData.life=0;});
+  sparkParticles.forEach(s=>{s.visible=false;s.userData.life=0;});
+  fireIntensity=0;fireSpawnAcc=0;
+  if(res.fx.boom>0.2)setTimeout(()=>triggerExplosion(res.fx.boom),260);
+  if(res.fx.fire>0.3)setTimeout(()=>{fireIntensity=Math.max(fireIntensity,res.fx.fire);},120);
+  let phen='—';
+  if(res.reactions.length){
+    const parts=[];
+    if(res.fx.precip)parts.push('kết tủa');
+    if(res.fx.gas)parts.push('sủi bọt khí');
+    if(res.fx.smoke)parts.push('khí độc');
+    if(res.fx.heat)parts.push('tỏa nhiệt');
+    if(res.fx.fire)parts.push('bốc lửa');
+    if(res.fx.boom)parts.push('nổ');
+    if(!parts.length)parts.push('đổi màu');
+    phen=parts.join(', ');
+  }else if(res.blocked.length)phen='Cần đun nóng';
+  else phen='Không phản ứng';
+  addLog(res,phen,res.status==='none'?'none':res.status);
+  renderAnalysis(res);analysisEl.scrollTop=0;analysisCountEl.textContent=`KẾT QUẢ · ${res.reactions.length} phản ứng`;
+  if(res.status==='danger')toast('NGUY HIỂM','Sinh khí độc / phát nổ — cần tủ hút!','danger',6000);
+  else if(res.status==='warning')toast('Phản ứng mạnh','Quan sát cẩn thận.','warning',5000);
+  else if(res.status==='ok'&&res.reactions.length)toast('Phản ứng xảy ra','Quan sát hiện tượng.','ok',4000);
+  else if(res.blocked.length)toast('Cần đun nóng',`Tăng đến ≥${Math.min(...res.blocked.map(r=>r.needTemp))}°C.`,'info',4500);
+  else toast('Không phản ứng','Không có phản ứng.','info',3500);
+}
+function resetLab(){
+  state.selected.clear();state.temp=25;state.volume=200;state.stir=true;
+  $('rngTemp').value=25;$('valTemp').textContent='25 °C';
+  $('rngVolume').value=200;$('valVolume').textContent='200 mL';
+  gasParticles.forEach(b=>b.visible=false);
+  precipParticles.forEach(p=>{p.visible=false;p.userData.settled=false;});
+  smokeParticles.forEach(s=>{s.visible=false;s.userData.life=0;});
+  fireParticles.forEach(f=>{f.visible=false;f.userData.life=0;});
+  sparkParticles.forEach(s=>{s.visible=false;s.userData.life=0;});
+  droppingModels.forEach(m=>scene.remove(m));droppingModels.length=0;
+  placedInstruments.filter(m=>!m.userData?.default).forEach(m=>scene.remove(m));placedInstruments=placedInstruments.filter(m=>m.userData?.default);beakerGroup.userData.chemIds=[];beakerGroup.userData.temperature=25;beakerGroup.userData.heat=0;beakerGroup.userData.sampleVisuals?.forEach(m=>beakerGroup.remove(m));beakerGroup.userData.sampleVisuals=[];updateLiveReadouts();
+  shockwaves.forEach(sw=>scene.remove(sw.mesh));shockwaves.length=0;
+  mixT=0;fireIntensity=0;fireSpawnAcc=0;shake=0;shakeDecay=0;
+  fxState={gas:0,precip:0,smoke:0,glow:0,heat:0,fire:0,boom:0,color:'#e9f4fa',gasColor:'#fff',precipColor:'#fff',smokeColor:'#fff'};
+  renderChemicals();refreshLab();
+  toast('Đã rửa cốc','Bàn thí nghiệm sạch.','info',2200);
+}
+function bindControls(){
+  $('rngTemp').addEventListener('input',e=>{state.temp=+e.target.value;$('valTemp').textContent=state.temp+' °C';$('statusTemp').textContent=state.temp+' °C';refreshLab();});
+  $('rngVolume').addEventListener('input',e=>{state.volume=+e.target.value;$('valVolume').textContent=state.volume+' mL';refreshLab();});
+  $('btnRun').addEventListener('click',runExperiment);
+  $('btnReset').addEventListener('click',resetLab);
+  $('btnClear').addEventListener('click',()=>{state.selected.clear();renderChemicals();refreshLab();});
+  $('btnExportMd').addEventListener('click',exportMarkdown);
+  $('btnExportCsv').addEventListener('click',exportCsv);
+}
+
+/* ============================================================
+   EXPORT
+   ============================================================ */
+function exportMarkdown(){
+  if(!logs.length){toast('Không có dữ liệu','Chưa có bản ghi.','info');return;}
+  const L=['# ChemLab Simulator — Experiment Log','',`> Xuất lúc: ${new Date().toLocaleString('vi-VN')}`,`> Tổng số thí nghiệm: **${logs.length}**`,'','---',''];
+  logs.slice().reverse().forEach((l,idx)=>{
+    L.push(`## ${idx+1}. ${l.chems}`,'');
+    L.push(`- **Thời gian:** ${l.t}`,`- **Nhiệt độ:** ${l.temp}`,`- **pH dự đoán:** ${l.ph}`,`- **Hiện tượng:** ${l.phen}`,`- **Kết luận:** ${l.status === 'danger' ? '⚠️ Nguy hiểm' : l.status === 'warning' ? 'Phản ứng mạnh' : l.status === 'ok' ? 'Có phản ứng' : 'Không phản ứng'}`);
+    if(l.reactions && l.reactions.length){
+      L.push('','### Phương trình hóa học','');
+      l.reactions.forEach(r=>{L.push(`**${r.name}** · _${r.type}_`,'','```',r.equation,'```','',`> ${r.desc}`,'');});
+    }
+    L.push('---','');
+  });
+  L.push('_Sinh bởi ChemLab Simulator_');
+  const blob=new Blob([L.join('\n')],{type:'text/markdown;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=`chemlab-log-${Date.now()}.md`;a.click();URL.revokeObjectURL(url);
+  toast('Đã xuất .md',`${logs.length} bản ghi với phương trình đầy đủ.`,'ok');
+}
+function exportCsv(){
+  if(!logs.length){toast('Không có dữ liệu','Chưa có bản ghi.','info');return;}
+  const header='Thời gian,Hỗn hợp,Hiện tượng,Nhiệt độ,pH,Kết luận,Phương trình\n';
+  const rows=logs.map(l=>{const eq=(l.reactions||[]).map(r=>r.equation).join(' | ').replace(/"/g,'""');return `"${l.t}","${l.chems}","${l.phen}","${l.temp}","${l.ph}","${l.status}","${eq}"`;}).join('\n');
+  const blob=new Blob(['\ufeff'+header+rows],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`chemlab-log-${Date.now()}.csv`;a.click();URL.revokeObjectURL(url);
+  toast('Đã xuất CSV','File CSV đã tải về.','ok');
+}
+
+/* ============================================================
+   PERIODIC TABLE
+   ============================================================ */
+const ptableGridEl=$('ptableGrid'),ptableLegendEl=$('ptableLegend'),ptableCountEl=$('ptableCount'),elementDetailEl=$('elementDetail'),elCountEl=$('elCount');
+function getGridPos(el){const Z=el[0],cat=el[5],period=el[6],group=el[7];if(cat==='ln')return{row:9,col:Z-57+3};if(cat==='an')return{row:10,col:Z-89+3};return{row:period,col:group};}
+function renderLegend(){ptableLegendEl.innerHTML=Object.entries(ELEM_CATEGORIES).map(([k,v])=>`<div class="legend-item${state.elementCategoryFilter===k?' active':''}" data-cat="${k}"><span class="legend-swatch" style="background:${v.color}"></span><span>${v.label}</span></div>`).join('');}
+ptableLegendEl.addEventListener('click',e=>{const it=e.target.closest('.legend-item');if(!it)return;const c=it.dataset.cat;state.elementCategoryFilter=state.elementCategoryFilter===c?null:c;renderPeriodicTable();});
+function renderPeriodicTable(){
+  renderLegend();
+  const s=state.elementSearch.toLowerCase().trim(),cf=state.elementCategoryFilter;
+  let mc=0,html='';
+  ELEMENTS.forEach(el=>{
+    const [Z,sym,vi,en,mass,cat]=el;
+    const pos=getGridPos(el),ci=ELEM_CATEGORIES[cat];
+    let m=true;
+    if(cf&&cat!==cf)m=false;
+    if(s){const hay=`${Z} ${sym} ${vi} ${en}`.toLowerCase();if(!hay.includes(s))m=false;}
+    if(m)mc++;
+    html+=`<div class="pt-cell ${m?'':'dimmed'}" data-z="${Z}" style="grid-row:${pos.row};grid-column:${pos.col};--c:${ci.color};" title="${vi} — ${en}"><div class="z">${Z}</div><div class="sym">${sym}</div><div class="nm">${vi}</div><div class="mass">${mass}</div></div>`;
+  });
+  html+=`<div class="pt-placeholder" style="grid-row:6;grid-column:3;"><strong>57-71</strong>La-Lu</div>`;
+  html+=`<div class="pt-placeholder" style="grid-row:7;grid-column:3;"><strong>89-103</strong>Ac-Lr</div>`;
+  ptableGridEl.innerHTML=html;
+  ptableCountEl.textContent=(s||cf)?`${mc} / 118 nguyên tố`:'118 nguyên tố';
+  if(state.selectedElement!=null){const cell=ptableGridEl.querySelector(`[data-z="${state.selectedElement}"]`);if(cell)cell.classList.add('selected');}
+}
+ptableGridEl.addEventListener('click',e=>{const cell=e.target.closest('.pt-cell');if(!cell)return;const Z=+cell.dataset.z;state.selectedElement=Z;ptableGridEl.querySelectorAll('.pt-cell').forEach(c=>c.classList.remove('selected'));cell.classList.add('selected');renderElementDetail(Z);});
+$('elSearch').addEventListener('input',e=>{state.elementSearch=e.target.value;renderPeriodicTable();});
+function renderElementDetail(Z){
+  const el=ELEMENTS.find(e=>e[0]===Z);if(!el)return;
+  const [zn,sym,vi,en,mass,cat,period,group,state_,config,EN,mp,bp,density,ox,discovery]=el;
+  const ci=ELEM_CATEGORIES[cat];
+  const oxList=ox?ox.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const fmt=v=>(v==null||v==='null')?'—':v;
+  const compounds=COMPOUNDS[sym]||[];
+  elementDetailEl.innerHTML=`
+    <div class="el-hero" style="--c:${ci.color};"><div class="el-symbol-box"><div class="sym">${sym}</div><div class="z">Z = ${zn}</div></div><div class="el-heading"><div class="el-vi-name">${vi}</div><div class="el-en-name">${en}</div><div class="el-cat">${ci.label}</div></div></div>
+    <div class="el-props">
+      <div class="el-prop"><div class="k">Khối lượng</div><div class="v">${mass} u</div></div>
+      <div class="el-prop"><div class="k">Chu kỳ / Nhóm</div><div class="v">${period} / ${group}</div></div>
+      <div class="el-prop"><div class="k">Trạng thái 25°C</div><div class="v">${STATE_LABEL[state_]||state_}</div></div>
+      <div class="el-prop"><div class="k">Độ âm điện</div><div class="v ${EN==null?'muted':''}">${fmt(EN)}</div></div>
+      <div class="el-prop"><div class="k">Nóng chảy</div><div class="v ${mp==null?'muted':''}">${fmt(mp)}${mp!=null?' °C':''}</div></div>
+      <div class="el-prop"><div class="k">Sôi</div><div class="v ${bp==null?'muted':''}">${fmt(bp)}${bp!=null?' °C':''}</div></div>
+      <div class="el-prop full"><div class="k">Khối lượng riêng</div><div class="v ${density==null?'muted':''}">${fmt(density)}${density!=null?' g/cm³':''}</div></div>
+    </div>
+    <div class="section-title" style="margin-top:0;"><i class="bi bi-diagram-2"></i> Cấu hình electron</div>
+    <div class="el-config">${config}</div>
+    <div class="section-title"><i class="bi bi-arrow-left-right"></i> Số oxi hóa</div>
+    <div class="el-oxidation">${oxList.length?oxList.map(o=>`<span class="ox-chip">${o}</span>`).join(''):'<span style="color:var(--txt-3);font-size:11px;">Không có dữ liệu</span>'}</div>
+    ${compounds.length?`<div class="section-title"><i class="bi bi-flask"></i> Hợp chất phổ biến (${compounds.length})</div><div class="compounds-list">${compounds.map(c=>`<div class="compound-row"><span class="cf">${c[0]}</span><span class="cn">${c[1]}</span><span class="ct">${c[2]}</span></div>`).join('')}</div>`:''}
+    <div class="el-note"><i class="bi bi-bookmark-star" style="color:var(--accent);margin-right:4px;"></i><strong style="color:var(--txt);">Phát hiện:</strong> ${discovery||'—'}</div>`;
+  elCountEl.textContent=`${sym} · Z=${zn}`;
+}
+
+/* ============================================================
+   PRACTICE
+   ============================================================ */
+const PRACTICE_BANK=[
+  {q:'Hoàn thành phương trình trung hòa giữa HCl và NaOH.',parts:['HCl','+',{blank:'NaOH'},'→',{blank:'NaCl'},'+','H₂O'],palette:['NaOH','NaCl','H₂O','Na₂O','KOH','Na₂CO₃']},
+  {q:'Kết tủa trắng AgCl được tạo thành từ AgNO₃ và NaCl.',parts:['AgNO₃','+',{blank:'NaCl'},'→',{blank:'AgCl'},'↓','+','NaNO₃'],palette:['NaCl','AgCl','Ag₂O','KCl','NaNO₃','Na₂SO₄']},
+  {q:'Kẽm tan trong axit clohidric giải phóng H₂.',parts:['Zn','+','2HCl','→',{blank:'ZnCl₂'},'+',{blank:'H₂'},'↑'],palette:['ZnCl₂','H₂','ZnO','Cl₂','Zn(OH)₂','H₂O']},
+  {q:'Sắt đẩy đồng ra khỏi dung dịch CuSO₄.',parts:['Fe','+',{blank:'CuSO₄'},'→',{blank:'FeSO₄'},'+','Cu','↓'],palette:['CuSO₄','FeSO₄','Cu','Fe₂(SO₄)₃','CuO','FeO']},
+  {q:'Axit clohidric phản ứng với natri cacbonat.',parts:['2HCl','+',{blank:'Na₂CO₃'},'→','2NaCl','+','H₂O','+',{blank:'CO₂'},'↑'],palette:['Na₂CO₃','CO₂','NaHCO₃','CO','NaOH','Na₂O']},
+  {q:'BaCl₂ phản ứng với H₂SO₄ tạo kết tủa trắng.',parts:['BaCl₂','+',{blank:'H₂SO₄'},'→',{blank:'BaSO₄'},'↓','+','2HCl'],palette:['H₂SO₄','BaSO₄','BaO','HCl','SO₂','Ba(OH)₂']},
+  {q:'Nhiệt phân canxi cacbonat.',parts:[{blank:'CaCO₃'},'—t°→',{blank:'CaO'},'+','CO₂','↑'],palette:['CaCO₃','CaO','Ca(OH)₂','CaC₂','CO','O₂']},
+  {q:'Đồng(II) hidroxit kết tủa xanh từ CuSO₄ + NaOH.',parts:['CuSO₄','+','2NaOH','→',{blank:'Cu(OH)₂'},'↓','+',{blank:'Na₂SO₄'}],palette:['Cu(OH)₂','Na₂SO₄','CuO','NaCl','Cu₂O','Na₂O']},
+  {q:'Phân hủy hiđro peroxit với xúc tác MnO₂.',parts:['2H₂O₂','—MnO₂→','2H₂O','+',{blank:'O₂'},'↑'],palette:['O₂','H₂','O₃','H₂O','CO₂','MnO']},
+  {q:'Đốt cháy metan trong oxi.',parts:['CH₄','+','2O₂','—t°→',{blank:'CO₂'},'+',{blank:'2H₂O'}],palette:['CO₂','2H₂O','CO','CH₃OH','C₂H₆','H₂']},
+  {q:'Natri phản ứng với nước.',parts:['2Na','+','2H₂O','→',{blank:'2NaOH'},'+',{blank:'H₂'},'↑'],palette:['2NaOH','H₂','Na₂O','Na₂O₂','H₂O₂','NaH']},
+  {q:'Kết tủa vàng AgI.',parts:['AgNO₃','+',{blank:'KI'},'→',{blank:'AgI'},'↓','+','KNO₃'],palette:['KI','AgI','KCl','Ag₂O','KBr','AgCl']}
+];
+const pracState={idx:0,correct:0,wrong:0,streak:0,maxStreak:0,filled:{},blanks:[],solved:false,_lastWrong:false};
+function renderPractice(){renderPracticeSide();renderPracticeQuestion();$('practiceCount').textContent=`${pracState.idx+1}/${PRACTICE_BANK.length}`;$('sideCount').textContent=`${PRACTICE_BANK.length} câu`;}
+function renderPracticeSide(){
+  $('practiceSide').innerHTML=PRACTICE_BANK.map((p,i)=>`<div class="side-row ${i===pracState.idx?'active':''} ${i<pracState.idx?'done':''}" data-idx="${i}"><span class="num">${i+1}</span><span class="lbl">${p.q.slice(0,42)}${p.q.length>42?'…':''}</span></div>`).join('');
+  $('practiceSide').querySelectorAll('.side-row').forEach(r=>{
+    r.addEventListener('click',()=>{pracState.idx=+r.dataset.idx;pracState.filled={};pracState.solved=false;pracState._lastWrong=false;renderPractice();});
+  });
+}
+function renderPracticeQuestion(){
+  const p=PRACTICE_BANK[pracState.idx];
+  $('practiceMeta').textContent=`Câu ${pracState.idx+1} / ${PRACTICE_BANK.length}`;
+  $('practiceQ').textContent=p.q;
+  $('practiceProgress').innerHTML=PRACTICE_BANK.map((_,i)=>`<span class="${i<pracState.idx?'done':i===pracState.idx?'active':''}"></span>`).join('');
+  let bi=0;pracState.blanks=[];
+  $('practiceEq').innerHTML=p.parts.map(part=>{
+    if(typeof part==='object'&&part.blank){const id=bi++;pracState.blanks.push(part.blank);const filled=pracState.filled[id];return `<span class="blk ${filled?'filled':''}" data-blank="${id}">${filled||'?'}</span>`;}
+    if(part==='→'||part==='—t°→'||part==='—MnO₂→')return `<span class="arrow">${part}</span>`;
+    if(part==='+'||part==='↓'||part==='↑')return `<span class="op">${part}</span>`;
+    return `<span class="fixed">${part}</span>`;
+  }).join('');
+  $('practicePalette').innerHTML=p.palette.map(x=>{const used=Object.values(pracState.filled).includes(x);return `<button class="pal-btn ${used?'used':''}" data-val="${x}">${x}</button>`;}).join('');
+  $('statCorrect').textContent=pracState.correct;$('statWrong').textContent=pracState.wrong;$('statStreak').textContent=pracState.streak;
+  const fb=$('practiceFeedback');
+  if(pracState.solved){fb.className='practice-feedback ok';fb.textContent='✓ Chính xác! Nhấn "Câu tiếp".';}
+  else if(Object.keys(pracState.filled).length===pracState.blanks.length)checkPracticeAnswer();
+  else{fb.className='practice-feedback info';fb.textContent=`Điền ${pracState.blanks.length-Object.keys(pracState.filled).length} ô còn lại`;}
+  $('practicePalette').querySelectorAll('.pal-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(pracState.solved)return;
+      const nextEmpty=Object.keys(pracState.blanks).find(k=>!pracState.filled[k]);
+      if(nextEmpty===undefined)return;
+      pracState.filled[nextEmpty]=btn.dataset.val;
+      renderPracticeQuestion();
+    });
+  });
+  $('practiceEq').querySelectorAll('.blk').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(pracState.solved)return;
+      const id=b.dataset.blank;
+      if(pracState.filled[id]){delete pracState.filled[id];renderPracticeQuestion();}
+    });
+  });
+}
+function checkPracticeAnswer(){
+  const p=PRACTICE_BANK[pracState.idx];
+  let allOk=true;
+  for(let i=0;i<pracState.blanks.length;i++){if(pracState.filled[i]!==pracState.blanks[i]){allOk=false;break;}}
+  const fb=$('practiceFeedback');
+  if(allOk){
+    if(!pracState.solved){pracState.solved=true;pracState.correct++;pracState.streak++;pracState.maxStreak=Math.max(pracState.maxStreak,pracState.streak);toast('Chính xác!','Phương trình đã hoàn thành.','ok',2500);addPracticeLog(p);}
+    fb.className='practice-feedback ok';fb.textContent='✓ Chính xác! Nhấn "Câu tiếp".';
+  }else{
+    if(!pracState._lastWrong){pracState.wrong++;pracState.streak=0;pracState._lastWrong=true;setTimeout(()=>{$('practiceEq').querySelectorAll('.blk').forEach(b=>{const id=b.dataset.blank;if(pracState.filled[id]&&pracState.filled[id]!==pracState.blanks[id])b.classList.add('wrong');});},10);}
+    fb.className='practice-feedback wrong';fb.textContent='✗ Chưa đúng. Nhấn vào ô để xóa và thử lại.';
+    $('statWrong').textContent=pracState.wrong;$('statStreak').textContent=pracState.streak;
+  }
+}
+function addPracticeLog(p){
+  const eqParts=p.parts.map(x=>typeof x==='object'?x.blank:x).join(' ');
+  logs.unshift({t:new Date().toLocaleTimeString('vi-VN'),chems:'[Practice]',phen:p.q.slice(0,50),temp:'—',ph:'—',status:'ok',reactions:[{name:'Practice',type:'Luyện tập',equation:eqParts,desc:'Hoàn thành đúng',level:'ok',fx:{}}]});
+  if(logs.length>80)logs.pop();renderLog();
+}
+$('btnPracReset').addEventListener('click',()=>{pracState.filled={};pracState.solved=false;pracState._lastWrong=false;renderPracticeQuestion();});
+$('btnPracNext').addEventListener('click',()=>{pracState.idx=(pracState.idx+1)%PRACTICE_BANK.length;pracState.filled={};pracState.solved=false;pracState._lastWrong=false;renderPractice();});
+
+const CURRICULUM_EXPERIMENTS=[
+{name:'Trung hòa axit – bazơ',grade:'Lớp 8–9 · Axit/Bazơ',desc:'HCl + NaOH tạo muối và nước.',ids:['hcl','naoh'],temp:25,vol:200},
+{name:'Điều chế khí CO₂',grade:'Lớp 8 · Cacbonat',desc:'Axit tác dụng với muối cacbonat, có khí thoát ra.',ids:['hcl','na2co3'],temp:25,vol:200},
+{name:'Kết tủa AgCl',grade:'Lớp 9–10 · Phản ứng trao đổi',desc:'AgNO₃ và NaCl tạo kết tủa trắng.',ids:['agno3','nacl'],temp:25,vol:200},
+{name:'Sắt đẩy đồng',grade:'Lớp 9 · Dãy hoạt động hóa học',desc:'Fe + CuSO₄ tạo Cu và dung dịch đổi màu.',ids:['fe','cuso4'],temp:25,vol:200},
+{name:'Cu(OH)₂ màu xanh',grade:'Lớp 9–10 · Bazơ',desc:'CuSO₄ tác dụng NaOH tạo kết tủa xanh.',ids:['cuso4','naoh'],temp:25,vol:200},
+{name:'Kẽm tác dụng axit',grade:'Lớp 9 · Kim loại',desc:'Zn tan trong HCl và giải phóng H₂.',ids:['zn','hcl'],temp:25,vol:200},
+{name:'Phân hủy H₂O₂',grade:'Lớp 10 · Tốc độ phản ứng',desc:'MnO₂ xúc tác, O₂ sủi bọt mạnh.',ids:['h2o2','mno2'],temp:25,vol:200},
+{name:'Phản ứng iot với KI',grade:'Lớp 10–11 · Oxi hóa khử',desc:'H₂O₂ oxi hóa I⁻ tạo dung dịch vàng nâu.',ids:['ki','h2o2'],temp:25,vol:200},
+{name:'Phản ứng đồng hồ lưu huỳnh',grade:'Lớp 11 · Tốc độ phản ứng',desc:'Na₂S₂O₃ tác dụng axit tạo lưu huỳnh và SO₂.',ids:['na2s2o3','hcl'],temp:25,vol:200},
+{name:'Điều chế Cl₂ trong điều kiện kiểm soát',grade:'Lớp 10–11 · Oxi hóa khử',desc:'KMnO₄ + HCl cần đun nóng, sinh khí Cl₂ độc.',ids:['kmno4','hcl'],temp:80,vol:200}
+];
+function renderExperimentLibrary(){const el=$('experimentLibrary');if(!el)return;el.innerHTML=CURRICULUM_EXPERIMENTS.map((x,i)=>`<article class="library-card"><span class="grade">${x.grade}</span><h6>${x.name}</h6><p>${x.desc}</p><button class="btn-u sm primary" data-experiment="${i}"><i class="bi bi-play-fill"></i> Nạp thí nghiệm</button></article>`).join('');el.addEventListener('click',e=>{const b=e.target.closest('[data-experiment]');if(!b)return;const x=CURRICULUM_EXPERIMENTS[+b.dataset.experiment];applyPreset(x);bootstrap.Modal.getInstance($('libraryModal'))?.hide();toast('Đã nạp bài mẫu',x.name,'info',2800)},{once:true})}
+renderExperimentLibrary();
+
+/* ============================================================
+   SANDBOXELS-STYLE FREE MIX + COMPOUND CATALOG
+   ============================================================ */
+const SANDBOX_INPUTS=[
+  {id:'hcl',label:'HCl',name:'Axit clohidric',color:'#dbeafe',density:5,liquid:true},
+  {id:'naoh',label:'NaOH',name:'Natri hidroxit',color:'#93c5fd',density:5,liquid:true},
+  {id:'na2co3',label:'Na₂CO₃',name:'Natri cacbonat',color:'#e2e8f0',density:7},
+  {id:'nahco3',label:'NaHCO₃',name:'Natri hidrocacbonat',color:'#f8fafc',density:7},
+  {id:'cuso4',label:'CuSO₄',name:'Đồng(II) sunfat',color:'#38bdf8',density:7,liquid:true},
+  {id:'fecl3',label:'FeCl₃',name:'Sắt(III) clorua',color:'#f59e0b',density:7,liquid:true},
+  {id:'zn',label:'Zn',name:'Kẽm',color:'#cbd5e1',density:9},
+  {id:'fe',label:'Fe',name:'Sắt',color:'#94a3b8',density:10},
+  {id:'mg',label:'Mg',name:'Magie',color:'#e2e8f0',density:9},
+  {id:'ki',label:'KI',name:'Kali iodua',color:'#fef3c7',density:7},
+  {id:'h2o2',label:'H₂O₂',name:'Hiđro peroxit',color:'#e0f2fe',density:4,liquid:true},
+  {id:'mno2',label:'MnO₂',name:'Mangan đioxit',color:'#52525b',density:9},
+  {id:'sand',label:'Cát',name:'Hạt trơ',color:'#d9b36c',density:8},
+  {id:'water',label:'H₂O',name:'Nước',color:'#4f9eff',density:3,liquid:true}
+];
+const SANDBOX_PRODUCTS=[
+  {id:'water',label:'H₂O',name:'Nước tạo thành',color:'#60a5fa',density:3,liquid:true},
+  {id:'co2',label:'CO₂',name:'Cacbon đioxit',color:'#a7f3d0',density:0,gas:true},
+  {id:'hydrogen',label:'H₂',name:'Hiđro',color:'#fef08a',density:0,gas:true},
+  {id:'oxygen',label:'O₂',name:'Oxi',color:'#bae6fd',density:0,gas:true},
+  {id:'steam',label:'Hơi nước',name:'Hơi nước',color:'#dbeafe',density:0,gas:true},
+  {id:'precip',label:'Kết tủa',name:'Kết tủa',color:'#f8fafc',density:9}
+];
+const SANDBOX_ELEMENTS=[...SANDBOX_INPUTS,...SANDBOX_PRODUCTS],SANDBOX_MAP=Object.fromEntries(SANDBOX_ELEMENTS.map(x=>[x.id,x]));
+let sandboxCanvas,sandboxCtx,sandboxW=112,sandboxH=68,sandboxGrid=[],sandboxSelected='hcl',sandboxBrush=4,sandboxRunning=true,sandboxReady=false,sandboxLast=0,sandboxDirty=true,sandboxReactionCount=0,sandboxReactionLog=[];
+const SANDBOX_REACTIONS=[
+ {a:['hcl','naoh'],out:'water',eq:'HCl + NaOH → NaCl + H₂O',note:'Trung hòa · tỏa nhiệt nhẹ'},
+ {a:['hcl','na2co3'],out:'co2',eq:'2HCl + Na₂CO₃ → 2NaCl + H₂O + CO₂↑',note:'Sủi bọt khí CO₂'},
+ {a:['hcl','nahco3'],out:'co2',eq:'HCl + NaHCO₃ → NaCl + H₂O + CO₂↑',note:'Sủi bọt mạnh'},
+ {a:['hcl','zn'],out:'hydrogen',eq:'Zn + 2HCl → ZnCl₂ + H₂↑',note:'Kẽm tan, sinh khí H₂'},
+ {a:['hcl','fe'],out:'hydrogen',eq:'Fe + 2HCl → FeCl₂ + H₂↑',note:'Sắt tan, sinh khí H₂'},
+ {a:['cuso4','naoh'],out:'precip',eq:'CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄',note:'Kết tủa xanh lam'},
+ {a:['fe','cuso4'],out:'precip',eq:'Fe + CuSO₄ → FeSO₄ + Cu↓',note:'Đồng bám trên sắt'},
+ {a:['h2o2','mno2'],out:'oxygen',eq:'2H₂O₂ —MnO₂→ 2H₂O + O₂↑',note:'MnO₂ xúc tác, sủi O₂'},
+ {a:['h2o2','ki'],out:'oxygen',eq:'H₂O₂ + 2KI → I₂ + 2KOH',note:'Dung dịch vàng nâu do iot'},
+ {a:['fire','water'],out:'steam',eq:'H₂O + nhiệt → Hơi nước',note:'Nước bay hơi'}
+];
+function initSandbox(){if(sandboxReady)return;sandboxCanvas=$('sandboxCanvas');sandboxCtx=sandboxCanvas.getContext('2d',{alpha:false});sandboxGrid=Array.from({length:sandboxW},()=>Array(sandboxH).fill(null));sandboxReady=true;renderSandboxPalette();sandboxResetWorld();const c=sandboxCanvas;c.addEventListener('pointerdown',e=>{c.setPointerCapture?.(e.pointerId);sandboxPaint(e)});c.addEventListener('pointermove',e=>{if(e.buttons)sandboxPaint(e)});$('sandboxPause').addEventListener('click',()=>{sandboxRunning=!sandboxRunning;$('sandboxPause').innerHTML=sandboxRunning?'<i class="bi bi-pause-fill"></i> Tạm dừng':'<i class="bi bi-play-fill"></i> Tiếp tục';$('sandboxStatus').textContent=sandboxRunning?'Đang chạy':'Đã tạm dừng'});$('sandboxReset').addEventListener('click',sandboxResetWorld);$('sandboxEraser').addEventListener('click',()=>{sandboxSelected='__erase';document.querySelectorAll('.sandbox-elem').forEach(x=>x.classList.remove('active'));$('sandboxSelectedInfo').innerHTML='<strong>Tẩy</strong><br><span style="color:var(--txt-2)">Kéo trên bàn để xóa hạt</span>'});$('sandboxSample').addEventListener('click',()=>{sandboxResetWorld();sandboxSelected='hcl';sandboxPaintAt(30,50,8);sandboxSelected='naoh';sandboxPaintAt(78,50,8);sandboxSelected='hcl';renderSandboxPalette();});$('sandboxBrush').addEventListener('input',e=>{sandboxBrush=+e.target.value;$('sandboxBrushValue').textContent=sandboxBrush});requestAnimationFrame(sandboxLoop)}
+function resizeSandbox(){if(!sandboxCanvas)return;const r=sandboxCanvas.parentElement.getBoundingClientRect();sandboxCanvas.width=Math.max(320,Math.floor(r.width));sandboxCanvas.height=Math.max(240,Math.floor(r.height));sandboxDirty=true}
+function renderSandboxPalette(){const el=$('sandboxPalette');if(!el)return;el.innerHTML=SANDBOX_INPUTS.map(x=>`<button class="sandbox-elem${x.id===sandboxSelected?' active':''}" data-sandbox-element="${x.id}" style="--dot:${x.color}"><span class="sandbox-dot" style="background:${x.color}"></span><strong>${x.label}</strong><small>${x.name}</small></button>`).join('');$('sandboxMaterialCount').textContent=SANDBOX_INPUTS.length+' chất';el.onclick=e=>{const b=e.target.closest('[data-sandbox-element]');if(!b)return;sandboxSelected=b.dataset.sandboxElement;el.querySelectorAll('.sandbox-elem').forEach(x=>x.classList.toggle('active',x===b));const m=SANDBOX_MAP[sandboxSelected];$('sandboxSelectedInfo').innerHTML=`<strong>${m.label} · ${m.name}</strong><br><span style="color:var(--txt-2)">Mật độ ${m.density} · kéo để rắc</span>`}}
+function sandboxResetWorld(){if(!sandboxGrid.length)return;sandboxGrid=Array.from({length:sandboxW},()=>Array(sandboxH).fill(null));sandboxReactionCount=0;sandboxReactionLog=[];$('sandboxEquation').textContent='Chưa có phản ứng';$('sandboxReactionCount').textContent='0';$('sandboxParticleCount').textContent='0';$('sandboxReactionLog').textContent='Chưa ghi nhận phản ứng';sandboxDirty=true;renderSandbox()}
+function sandboxCellFromEvent(e){const r=sandboxCanvas.getBoundingClientRect();return{x:Math.max(0,Math.min(sandboxW-1,Math.floor((e.clientX-r.left)/r.width*sandboxW))),y:Math.max(0,Math.min(sandboxH-1,Math.floor((e.clientY-r.top)/r.height*sandboxH)))} }
+function sandboxPaint(e){const p=sandboxCellFromEvent(e);sandboxPaintAt(p.x,p.y,sandboxBrush)}
+function sandboxPaintAt(cx,cy,size){const r=Math.max(1,Math.ceil(size/2));for(let x=cx-r;x<=cx+r;x++)for(let y=cy-r;y<=cy+r;y++)if(x>=0&&x<sandboxW&&y>=0&&y<sandboxH&&Math.hypot(x-cx,y-cy)<=r)sandboxGrid[x][y]=sandboxSelected==='__erase'?null:sandboxSelected;sandboxDirty=true}
+function sandboxSwap(x1,y1,x2,y2){const t=sandboxGrid[x1][y1];sandboxGrid[x1][y1]=sandboxGrid[x2][y2];sandboxGrid[x2][y2]=t;sandboxDirty=true}
+function sandboxReact(x,y){const here=sandboxGrid[x][y];if(!here)return false;for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+d[0],ny=y+d[1];if(nx<0||ny<0||nx>=sandboxW||ny>=sandboxH)continue;const there=sandboxGrid[nx][ny];if(!there)continue;const r=SANDBOX_REACTIONS.find(q=>(q.a.includes(here)&&q.a.includes(there)));if(r){sandboxGrid[x][y]=r.out;sandboxGrid[nx][ny]=r.out;sandboxReactionCount++;sandboxReactionLog.unshift(r.note);sandboxReactionLog=sandboxReactionLog.slice(0,3);$('sandboxEquation').textContent=r.eq;$('sandboxReactionCount').textContent=sandboxReactionCount;$('sandboxReactionLog').textContent=sandboxReactionLog.join(' · ');sandboxDirty=true;return true}}return false}
+function sandboxStep(){for(let y=sandboxH-2;y>=0;y--)for(let x=1;x<sandboxW-1;x++){const id=sandboxGrid[x][y],e=id&&SANDBOX_MAP[id];if(!e)continue;if(sandboxReact(x,y))continue;if(e.gas){if(!sandboxGrid[x][y-1]&&Math.random()<.45)sandboxSwap(x,y,x,y-1);continue}const below=sandboxGrid[x][y+1],be=below&&SANDBOX_MAP[below];if(!below||be.density>e.density){sandboxSwap(x,y,x,y+1)}else if(e.liquid&&Math.random()<.22){const nx=x+(Math.random()<.5?-1:1);if(nx>0&&nx<sandboxW-1&&!sandboxGrid[nx][y])sandboxSwap(x,y,nx,y)}}}
+function renderSandbox(){if(!sandboxCtx||!sandboxDirty)return;const w=sandboxCanvas.width/sandboxW,h=sandboxCanvas.height/sandboxH;sandboxCtx.fillStyle='#070a0f';sandboxCtx.fillRect(0,0,sandboxCanvas.width,sandboxCanvas.height);sandboxCtx.strokeStyle='rgba(105,145,190,.08)';sandboxCtx.lineWidth=1;for(let x=0;x<=sandboxW;x+=8){sandboxCtx.beginPath();sandboxCtx.moveTo(x*w,0);sandboxCtx.lineTo(x*w,sandboxCanvas.height);sandboxCtx.stroke()}for(let y=0;y<=sandboxH;y+=8){sandboxCtx.beginPath();sandboxCtx.moveTo(0,y*h);sandboxCtx.lineTo(sandboxCanvas.width,y*h);sandboxCtx.stroke()}let count=0;for(let x=0;x<sandboxW;x++)for(let y=0;y<sandboxH;y++){const e=SANDBOX_MAP[sandboxGrid[x][y]];if(e){count++;sandboxCtx.fillStyle=e.color;sandboxCtx.fillRect(Math.floor(x*w),Math.floor(y*h),Math.ceil(w)+.4,Math.ceil(h)+.4)}}$('sandboxParticleCount').textContent=count;sandboxDirty=false}
+function sandboxLoop(t){if(sandboxReady){if(sandboxRunning&&t-sandboxLast>58){sandboxStep();sandboxLast=t}renderSandbox()}requestAnimationFrame(sandboxLoop)}
+// Generated study catalog: combinations are searchable and deliberately labeled as generated learning references.
+const CATIONS=[['Na','Natri',1],['K','Kali',1],['Ca','Canxi',2],['Mg','Magie',2],['Al','Nhôm',3],['Fe','Sắt',2],['Cu','Đồng',2],['Zn','Kẽm',2],['Ag','Bạc',1],['Ba','Bari',2],['NH₄','Amoni',1],['H','Hiđro',1]];
+const ANIONS=[['Cl','clorua',1],['Br','bromua',1],['I','iodua',1],['OH','hidroxit',1],['NO₃','nitrat',1],['SO₄','sunfat',2],['CO₃','cacbonat',2],['PO₄','photphat',3],['S','sunfua',2],['O','oxit',2]];
+const COMPOUND_CATALOG=[];
+function addCompound(formula,name,type,structure){COMPOUND_CATALOG.push({formula,name,type,structure})}
+const SUBS=['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'];function subNum(n){return String(n).split('').map(x=>SUBS[+x]).join('')}
+function balancedSalt(c,cv,a,av){const g=Math.abs(cv*av)/Math.max(cv,av),x=av/g,y=cv/g;const an=(a.length>1&&y>1)?`(${a})`:a;return `${c}${x>1?subNum(x):''}${an}${y>1?subNum(y):''}`}
+for(const [c,cn,cv] of CATIONS)for(const [a,an,av] of ANIONS){for(let h=0;h<6;h++)addCompound(`${balancedSalt(c,cv,a,av)}${h?'·'+h+'H₂O':''}`,`${cn} ${an}${h?' ngậm nước':''}`,'vô cơ','chain')} 
+for(let n=1;n<=80;n++){addCompound(`C${n}H${2*n+2}`,`Ankan mạch ${n} carbon`,'hữu cơ','chain');addCompound(`C${n}H${2*n+1}OH`,`Ancol mạch ${n} carbon`,'hữu cơ','chain');if(n>1)addCompound(`C${n}H${2*n}O₂`,`Axit cacboxylic mạch ${n} carbon`,'hữu cơ','chain')}
+for(let n=2;n<=40;n++)for(const [f,name] of [['polyethylene','Polyetylen'],['PVC','PVC'],['nylon','Nylon'],['polystyrene','Polystyren'],['polyester','Polyeste']])addCompound(`[${f}]ₙ`,`${name} · mắt xích ${n}`,'polymer','polymer')
+for(let i=0;i<120;i++)addCompound(`R${i+1}–Ar`,`Dẫn xuất hữu cơ thơm mẫu ${i+1}`,'hữu cơ','ring');
+function renderCompoundCatalog(){const el=$('compoundList');if(!el)return;const q=($('compoundSearch')?.value||'').toLowerCase();const rows=COMPOUND_CATALOG.filter(c=>(c.formula+c.name+c.type).toLowerCase().includes(q)).slice(0,600);$('compoundCount').textContent=`${COMPOUND_CATALOG.length.toLocaleString('vi-VN')} mục · hiển thị ${rows.length}`;el.innerHTML=rows.map((c,i)=>`<div class="compound-row" data-ci="${COMPOUND_CATALOG.indexOf(c)}"><div class="formula">${c.formula}</div><div class="compound-meta">${c.name} · ${c.type}</div></div>`).join('');el.querySelectorAll('.compound-row').forEach(r=>r.addEventListener('click',()=>{el.querySelectorAll('.compound-row').forEach(x=>x.classList.remove('active'));r.classList.add('active');renderCompoundDetail(COMPOUND_CATALOG[+r.dataset.ci])}))}
+const COMPOUND_REACTION_CHAINS={
+  'HCl':[
+    ['Tổng hợp','H₂ + Cl₂ → 2HCl'],
+    ['Phân hủy','HCl → H⁺ + Cl⁻ (trong nước)'],
+    ['Thế đơn','Zn + 2HCl → ZnCl₂ + H₂↑'],
+    ['Trao đổi kép','HCl + NaOH → NaCl + H₂O']
+  ],
+  'NaOH':[
+    ['Tổng hợp','Na₂O + H₂O → 2NaOH'],
+    ['Phân hủy','2NaOH(l) —điện phân nóng chảy→ 2Na + H₂O + ½O₂'],
+    ['Thế đơn','2Al + 2NaOH + 2H₂O → 2NaAlO₂ + 3H₂↑'],
+    ['Trao đổi kép','2NaOH + CuSO₄ → Cu(OH)₂↓ + Na₂SO₄']
+  ],
+  'Na₂CO₃':[
+    ['Tổng hợp','2NaOH + CO₂ → Na₂CO₃ + H₂O'],
+    ['Phân hủy','Na₂CO₃·10H₂O —Δ→ Na₂CO₃ + 10H₂O'],
+    ['Thế đơn','Na₂CO₃ + 2Na → 2Na₂O + C'],
+    ['Trao đổi kép','Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂↑']
+  ],
+  'CuSO₄':[
+    ['Tổng hợp','CuO + H₂SO₄ → CuSO₄ + H₂O'],
+    ['Phân hủy','CuSO₄·5H₂O —Δ→ CuSO₄ + 5H₂O'],
+    ['Thế đơn','Fe + CuSO₄ → FeSO₄ + Cu↓'],
+    ['Trao đổi kép','CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄']
+  ],
+  'H₂O₂':[
+    ['Tổng hợp','H₂ + O₂ → H₂O₂ (điều kiện thích hợp)'],
+    ['Phân hủy','2H₂O₂ —MnO₂→ 2H₂O + O₂↑'],
+    ['Thế đơn','H₂O₂ + 2KI → I₂ + 2KOH'],
+    ['Trao đổi kép','H₂O₂ + Na₂S → Na₂SO₄ + H₂O (oxi hóa)']
+  ],
+  'CaCO₃':[
+    ['Tổng hợp','CaO + CO₂ → CaCO₃'],
+    ['Phân hủy','CaCO₃ —Δ→ CaO + CO₂↑'],
+    ['Thế đơn','CaCO₃ + 2Na → Na₂CO₃ + Ca'],
+    ['Trao đổi kép','CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂↑']
+  ],
+  'Fe':[
+    ['Tổng hợp','Fe + S —Δ→ FeS'],
+    ['Phân hủy','Fe₃O₄ + 4H₂ —Δ→ 3Fe + 4H₂O'],
+    ['Thế đơn','Fe + CuSO₄ → FeSO₄ + Cu↓'],
+    ['Trao đổi kép','FeCl₂ + 2NaOH → Fe(OH)₂↓ + 2NaCl']
+  ],
+  'Zn':[
+    ['Tổng hợp','2Zn + O₂ —Δ→ 2ZnO'],
+    ['Phân hủy','ZnCO₃ —Δ→ ZnO + CO₂↑'],
+    ['Thế đơn','Zn + 2HCl → ZnCl₂ + H₂↑'],
+    ['Trao đổi kép','ZnSO₄ + 2NaOH → Zn(OH)₂↓ + Na₂SO₄']
+  ]
+};
+function compoundReactionChain(c){return COMPOUND_REACTION_CHAINS[c.formula]||[
+  ['Tổng hợp',`Đơn chất + đơn chất → ${c.formula}`],
+  ['Phân hủy',`${c.formula} → các chất đơn giản hơn (điều kiện thích hợp)`],
+  ['Thế đơn',`Kim loại hoạt động + ${c.formula} → chất mới + chất bị đẩy`],
+  ['Trao đổi kép',`${c.formula} + chất tan → muối/kết tủa/khí + chất mới`]
+].map(([t,e])=>({t,e}));}
+function renderCompoundDetail(c){const el=$('compoundDetail');const count=c.structure==='polymer'?5:c.structure==='ring'?6:Math.min(8,Math.max(2,c.formula.length%8+2));let nodes='';for(let i=0;i<count;i++){nodes+=`<span class="molecule-node ${c.structure==='ring'?'hex':''}">${c.structure==='ring'?'C':'X'+(i+1)}</span>${i<count-1?'<span class="molecule-link"></span>':''}`}if(c.structure==='polymer')nodes='<span class="polymer-bracket">[</span>'+nodes+'<span class="polymer-bracket">]ₙ</span>';const chain=compoundReactionChain(c);el.innerHTML=`<h4>${c.formula}</h4><div style="color:var(--txt-2);font-size:11px">${c.name}</div><div class="compound-structure">${nodes}</div><div class="structure-caption">Biểu diễn ${c.structure==='ring'?'vòng lục giác':c.structure==='polymer'?'chuỗi polymer lặp':'chuỗi phân tử ngang'} · dùng cho minh họa học tập</div><span class="structure-badge">${c.type} · catalog sinh tự động</span><div class="section-title"><i class="bi bi-arrow-repeat"></i> Chuỗi 4 loại phản ứng</div><div class="reaction-chain">${chain.map(x=>`<div class="chain-card"><div class="chain-type">${x.t}</div><div class="chain-eq">${x.e}</div></div>`).join('')}</div><div class="chain-note">Chuỗi là sơ đồ học tập tổng quát; phương trình cụ thể cần xét điều kiện, hệ số và chất tham gia.</div>`}
+$('compoundSearch').addEventListener('input',renderCompoundCatalog);renderCompoundCatalog();
+
+
+
+/* ============================================================
+   MT2 QUANTITATIVE / REDOX / NET-ION MODULE
+   ============================================================ */
+const Q_MOLAR={H2:2.016,O2:32.00,H2O:18.015,HCl:36.46,NaOH:40.00,NaCl:58.44,H2SO4:98.08,KOH:56.11,K2SO4:174.26,Na2SO4:142.04,BaSO4:233.39,AgNO3:169.87,AgCl:143.32,NaNO3:84.99,Na2CO3:105.99,CO2:44.01,KMnO4:158.03,MnSO4:151.00,K2SO4:174.26,Na2SO3:126.04,K2Cr2O7:294.18,"Cr2(SO4)3":392.18,FeSO4:151.91,"Fe2(SO4)3":399.88,FeCl2:126.75,FeCl3:162.20,Cu:63.55,CuSO4:159.61,Zn:65.38,"ZnCl2":136.28,ZnSO4:161.44,"Cu(NO3)2":187.56,KI:166.00,I2:253.81,KCl:74.55,Cl2:70.90,H2O2:34.01};
+const Q_REACTIONS=[
+ {id:'neutral',name:'Trung hòa HCl + NaOH',eq:'HCl + NaOH → NaCl + H₂O',r:[['HCl',1],['NaOH',1]],p:[['NaCl',1],['H₂O',1]]},
+ {id:'carbonate',name:'Axit + cacbonat',eq:'2HCl + Na₂CO₃ → 2NaCl + H₂O + CO₂↑',r:[['HCl',2],['Na₂CO₃',1]],p:[['NaCl',2],['H₂O',1],['CO₂',1]]},
+ {id:'precip',name:'Kết tủa bạc clorua',eq:'AgNO₃ + NaCl → AgCl↓ + NaNO₃',r:[['AgNO₃',1],['NaCl',1]],p:[['AgCl',1],['NaNO₃',1]]},
+ {id:'redox_permanganate',name:'Permanganat oxi hóa sulfite trong axit',eq:'2KMnO₄ + 5Na₂SO₃ + 3H₂SO₄ → 2MnSO₄ + K₂SO₄ + 5Na₂SO₄ + 3H₂O',r:[['KMnO₄',2],['Na₂SO₃',5],['H₂SO₄',3]],p:[['MnSO₄',2],['K₂SO₄',1],['Na₂SO₄',5],['H₂O',3]]},
+ {id:'h2o2',name:'Phân hủy H₂O₂',eq:'2H₂O₂ —MnO₂→ 2H₂O + O₂↑',r:[['H₂O₂',2]],p:[['H₂O',2],['O₂',1]]},
+ {id:'znhcl',name:'Kẽm + axit clohidric',eq:'Zn + 2HCl → ZnCl₂ + H₂↑',r:[['Zn',1],['HCl',2]],p:[['ZnCl₂',1],['H₂',1]]},
+ {id:'cuag',name:'Đồng + bạc nitrat',eq:'Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag',r:[['Cu',1],['AgNO₃',2]],p:[['Cu(NO₃)₂',1],['Ag',2]]}
+];
+const REDOX_ADVANCED=[
+ {name:'KMnO₄ / Na₂SO₃ trong H₂SO₄',eq:'2KMnO₄ + 5Na₂SO₃ + 3H₂SO₄ → 2MnSO₄ + K₂SO₄ + 5Na₂SO₄ + 3H₂O',medium:'Axit',ox:'S(+4) → S(+6): nhường 2e⁻',red:'Mn(+7) → Mn(+2): nhận 5e⁻',halfOx:'SO₃²⁻ + H₂O → SO₄²⁻ + 2H⁺ + 2e⁻',halfRed:'MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O',n:10,source:'MT2 Chương X'},
+ {name:'KMnO₄ / FeSO₄ trong H₂SO₄',eq:'MnO₄⁻ + 5Fe²⁺ + 8H⁺ → Mn²⁺ + 5Fe³⁺ + 4H₂O',medium:'Axit',ox:'Fe²⁺ → Fe³⁺ + e⁻',red:'Mn(+7) → Mn(+2): nhận 5e⁻',halfOx:'Fe²⁺ → Fe³⁺ + e⁻',halfRed:'MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O',n:5,source:'MT2 Chương X'},
+ {name:'K₂Cr₂O₇ / Fe²⁺ trong axit',eq:'Cr₂O₇²⁻ + 6Fe²⁺ + 14H⁺ → 2Cr³⁺ + 6Fe³⁺ + 7H₂O',medium:'Axit',ox:'Fe²⁺ → Fe³⁺ + e⁻',red:'Cr(+6) → Cr(+3): nhận 3e⁻ mỗi Cr',halfOx:'Fe²⁺ → Fe³⁺ + e⁻',halfRed:'Cr₂O₇²⁻ + 14H⁺ + 6e⁻ → 2Cr³⁺ + 7H₂O',n:6,source:'MT2 Chương X'},
+ {name:'KMnO₄ / H₂O₂ trong axit',eq:'2MnO₄⁻ + 5H₂O₂ + 6H⁺ → 2Mn²⁺ + 5O₂ + 8H₂O',medium:'Axit',ox:'O(-1) trong H₂O₂ → O(0): nhường e⁻',red:'Mn(+7) → Mn(+2): nhận 5e⁻',halfOx:'H₂O₂ → O₂ + 2H⁺ + 2e⁻',halfRed:'MnO₄⁻ + 8H⁺ + 5e⁻ → Mn²⁺ + 4H₂O',n:10,source:'MT2 Chương X'},
+ {name:'KMnO₄ trong môi trường trung tính',eq:'2MnO₄⁻ + 3SO₃²⁻ + H₂O → 2MnO₂↓ + 3SO₄²⁻ + 2OH⁻',medium:'Trung tính/bazơ yếu',ox:'S(+4) → S(+6): nhường 2e⁻',red:'Mn(+7) → Mn(+4): nhận 3e⁻',halfOx:'SO₃²⁻ + 2OH⁻ → SO₄²⁻ + H₂O + 2e⁻',halfRed:'MnO₄⁻ + 2H₂O + 3e⁻ → MnO₂ + 4OH⁻',n:6,source:'MT2 Chương I, X'},
+ {name:'Cl₂ tự oxi hóa–khử trong kiềm nóng',eq:'3Cl₂ + 6KOH → 5KCl + KClO₃ + 3H₂O',medium:'Bazơ, đun nóng',ox:'Cl(0) → Cl(+5): oxi hóa',red:'Cl(0) → Cl(-1): khử',halfOx:'Cl₂ + 12OH⁻ → 2ClO₃⁻ + 6H₂O + 10e⁻',halfRed:'Cl₂ + 2e⁻ → 2Cl⁻',n:10,source:'MT2 Chương X'},
+ {name:'Cu + HNO₃ đặc',eq:'Cu + 4HNO₃ → Cu(NO₃)₂ + 2NO₂↑ + 2H₂O',medium:'Axit nitric đặc',ox:'Cu(0) → Cu(+2): nhường 2e⁻',red:'N(+5) → N(+4) trong NO₂',halfOx:'Cu → Cu²⁺ + 2e⁻',halfRed:'NO₃⁻ + 2H⁺ + e⁻ → NO₂ + H₂O',n:2,source:'MT2 CSDL phản ứng'},
+ {name:'Zn + Cu²⁺',eq:'Zn + Cu²⁺ → Zn²⁺ + Cu',medium:'Dung dịch điện li',ox:'Zn(0) → Zn²⁺ + 2e⁻',red:'Cu²⁺ + 2e⁻ → Cu(0)',halfOx:'Zn → Zn²⁺ + 2e⁻',halfRed:'Cu²⁺ + 2e⁻ → Cu',n:2,source:'MT2 Chương X'}
+];
+const NET_IONIC=[
+ {name:'Trung hòa mạnh',molecular:'HCl + NaOH → NaCl + H₂O',steps:['Phân li chất điện li mạnh','Triệt tiêu Na⁺ và Cl⁻'],net:'H⁺ + OH⁻ → H₂O'},
+ {name:'Kết tủa AgCl',molecular:'AgNO₃ + NaCl → AgCl↓ + NaNO₃',steps:['Phân li: Ag⁺ + NO₃⁻ + Na⁺ + Cl⁻','NO₃⁻ và Na⁺ là ion khán giả'],net:'Ag⁺ + Cl⁻ → AgCl↓'},
+ {name:'Axit + cacbonat',molecular:'2HCl + Na₂CO₃ → 2NaCl + H₂O + CO₂↑',steps:['CO₃²⁻ nhận proton tạo H₂CO₃','H₂CO₃ phân hủy thành H₂O và CO₂'],net:'CO₃²⁻ + 2H⁺ → H₂O + CO₂↑'},
+ {name:'Permanganat / sắt(II)',molecular:'MnO₄⁻ + 5Fe²⁺ + 8H⁺ → Mn²⁺ + 5Fe³⁺ + 4H₂O',steps:['Bán oxi hóa: Fe²⁺ → Fe³⁺ + e⁻','Nhân 5 bán oxi hóa rồi cộng với bán khử'],net:'MnO₄⁻ + 5Fe²⁺ + 8H⁺ → Mn²⁺ + 5Fe³⁺ + 4H₂O'},
+ {name:'Đicromat / sắt(II)',molecular:'K₂Cr₂O₇ + 6FeSO₄ + 7H₂SO₄ → Cr₂(SO₄)₃ + 3Fe₂(SO₄)₃ + K₂SO₄ + 7H₂O',steps:['Cr₂O₇²⁻ nhận 6e⁻ trong axit','6Fe²⁺ nhường 6e⁻'],net:'Cr₂O₇²⁻ + 6Fe²⁺ + 14H⁺ → 2Cr³⁺ + 6Fe³⁺ + 7H₂O'},
+ {name:'Kim loại đẩy ion',molecular:'Zn + CuSO₄ → ZnSO₄ + Cu',steps:['SO₄²⁻ là ion khán giả','Zn nhường 2e⁻ cho Cu²⁺'],net:'Zn + Cu²⁺ → Zn²⁺ + Cu'}
+];
+function qKey(f){return String(f).replace(/[₂₃₄₅₆₇₈₉₀]/g,x=>'₂₃₄₅₆₇₈₉₀'.indexOf(x));}
+function qMolar(f){return Q_MOLAR[f]||Q_MOLAR[qKey(f)]||null}
+function renderQuantReaction(){const sel=$('quantReaction'),r=Q_REACTIONS.find(x=>x.id===sel.value)||Q_REACTIONS[0];$('quantEquation').textContent=r.eq;$('quantKnown').innerHTML=r.r.map((x,i)=>`<option value="${i}">${x[0]} · hệ số ${x[1]}</option>`).join('');$('quantTarget').innerHTML=r.p.map((x,i)=>`<option value="${i}">${x[0]} · hệ số ${x[1]}</option>`).join('');$('quantHint').textContent=`${r.r.length} chất tham gia · ${r.p.length} sản phẩm`}
+function runQuant(){const r=Q_REACTIONS.find(x=>x.id===$('quantReaction').value)||Q_REACTIONS[0],ri=+$('quantKnown').value,pi=+$('quantTarget').value,amt=+$('quantAmount').value,unit=$('quantUnit').value,c=+$('quantConcentration').value||0,tc=+$('quantTargetConcentration').value||0;const known=r.r[ri],target=r.p[pi],M=qMolar(known[0]),TM=qMolar(target[0]);let n=0;if(!(amt>=0)){toast('Dữ liệu không hợp lệ','Nhập lượng chất không âm.','warning');return}if(unit==='mol')n=amt;if(unit==='g')n=M?amt/M:NaN;if(unit==='mL')n=c*amt/1000;if(unit==='L')n=amt/24.465;const extent=n/known[1],nt=extent*target[1],mass=TM?nt*TM:NaN,gas=nt*24.465,sol=tc?nt/tc:NaN;$('quantResult').innerHTML=[['Mol chất đã biết',`${n.toFixed(6)} mol`],['Mức độ phản ứng ξ',`${extent.toFixed(6)} mol`],['Mol sản phẩm',`${nt.toFixed(6)} mol`],['Khối lượng sản phẩm',Number.isFinite(mass)?`${mass.toFixed(4)} g`:'Chưa có M'],['Thể tích khí ở 25°C, 1 atm',`${gas.toFixed(4)} L`],['Thể tích dd sản phẩm',tc?`${(sol*1000).toFixed(3)} mL (C=${tc} M)`:'Nhập C đích để tính'].map(x=>`<div class="qv"><div class="qk">${x[0]}</div><div class="qnum">${x[1]}</div></div>`).join('');}
+function renderRedox(){const l=$('redoxList');if(!l)return;l.innerHTML=REDOX_ADVANCED.map((r,i)=>`<div class="redox-item" data-rx="${i}"><div class="rname">${r.name}</div><div class="req">${r.eq}</div></div>`).join('');l.querySelectorAll('.redox-item').forEach(x=>x.addEventListener('click',()=>{l.querySelectorAll('.redox-item').forEach(y=>y.classList.remove('active'));x.classList.add('active');const r=REDOX_ADVANCED[+x.dataset.rx];$('redoxDetail').innerHTML=`<h4>${r.name}</h4><span class="reaction-badge">${r.medium}</span><span class="reaction-badge">n(e⁻) = ${r.n}</span><span class="reaction-badge">${r.source}</span><div class="redox-eq">${r.eq}</div><div class="half-grid"><div class="half-box"><b>Chất khử / quá trình oxi hóa</b><span>${r.ox}<br>${r.halfOx}</span></div><div class="half-box"><b>Chất oxi hóa / quá trình khử</b><span>${r.red}<br>${r.halfRed}</span></div></div><div class="reaction-library-note"><i class="bi bi-check2-circle"></i> Đã cân bằng theo bảo toàn nguyên tố và bảo toàn electron. Khi áp dụng thực nghiệm cần xét nồng độ, pH, nhiệt độ và chất xúc tác.</div>`}))}
+function renderIonic(){const l=$('ionList');if(!l)return;l.innerHTML=NET_IONIC.map((r,i)=>`<div class="ion-item" data-ion="${i}"><b>${r.name}</b><span>${r.net}</span></div>`).join('');l.querySelectorAll('.ion-item').forEach(x=>x.addEventListener('click',()=>{l.querySelectorAll('.ion-item').forEach(y=>y.classList.remove('active'));x.classList.add('active');const r=NET_IONIC[+x.dataset.ion];$('ionDetail').innerHTML=`<h4>${r.name}</h4><div style="font:11px var(--mono);color:var(--txt-2);line-height:1.5">Phương trình phân tử: ${r.molecular}</div>${r.steps.map((st,i)=>`<div class="ion-step"><strong>Bước ${i+1}:</strong> ${st}</div>`).join('')}<div class="quant-equation" style="margin-top:12px">${r.net}</div>`}))}
+$('quantReaction')?.addEventListener('change',renderQuantReaction);$('btnQuantCalc')?.addEventListener('click',runQuant);$('quantModal')?.addEventListener('shown.bs.modal',()=>{const q=$('quantReaction');q.innerHTML=Q_REACTIONS.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');renderQuantReaction()});$('advancedChemModal')?.addEventListener('shown.bs.modal',()=>{renderRedox();renderIonic()});
+
+/* ============================================================
+   REACTION LIBRARY — structured educational reaction catalog
+   ============================================================
+const REACTION_LIBRARY=[];
+const RL_SEEN=new Set();
+function addLibraryReaction(type,equation,reactants,products,condition,desc){const key=type+'|'+equation;if(RL_SEEN.has(key))return;RL_SEEN.add(key);REACTION_LIBRARY.push({id:REACTION_LIBRARY.length+1,type,equation,reactants,products,condition,desc});}
+const RL_ACIDS=[['HCl','Axit clohidric'],['H₂SO₄','Axit sunfuric'],['HNO₃','Axit nitric'],['CH₃COOH','Axit axetic'],['H₃PO₄','Axit photphoric']];
+const RL_CATIONS=CATIONS.filter(x=>!['H'].includes(x[0]));
+const RL_ANIONS=ANIONS.filter(x=>!['O'].includes(x[0]));
+const RL_SALT_ROWS=RL_CATIONS.flatMap(c=>RL_ANIONS.map(a=>({c,a,f:balancedSalt(c[0],c[2],a[0],a[2]),n:`${c[1]} ${a[1]}`})));
+// Neutralization and acid + gas-forming salt families.
+for(const [af,an] of RL_ACIDS)for(const [c,cn,cv] of RL_CATIONS){const salt=balancedSalt(c,cv,'OH',1);const w=cv===1?'':cv;addLibraryReaction('Trung hòa',`${cv>1?cv:''}${af} + ${cv>1?'':''}${c}OH${cv>1?'₂':''} → ${salt} + ${cv>1?cv:''}H₂O`,`${af} + ${c}OH${cv>1?'₂':''}`,`${salt} + H₂O`,'Dung dịch, nhiệt độ thường',`${an} phản ứng với bazơ ${cn.toLowerCase()} tạo muối và nước.`)}
+for(const [af,an] of RL_ACIDS)for(const [c,cn,cv] of RL_CATIONS){const salt=balancedSalt(c,cv,'CO₃',2);addLibraryReaction('Axit + cacbonat',`${cv===1?'2':''}${af} + ${salt} → ${cv===1?'2':''}${balancedSalt(c,cv,af==='HNO₃'?'NO₃':af==='HCl'?'Cl':'SO₄',af==='H₂SO₄'?2:1)} + H₂O + CO₂↑`,`${af} + ${salt}`,'muối + H₂O + CO₂↑','Dung dịch',`${an} giải phóng khí CO₂, thường quan sát thấy sủi bọt.`)}
+// Double displacement: generate every valid insoluble product pair from the salt matrix.
+for(const left of RL_SALT_ROWS)for(const right of RL_SALT_ROWS){if(left.f===right.f)continue;const p1={c:left.c[0],a:right.a[0]},p2={c:right.c[0],a:left.a[0]};const s1=solubility(p1.c,p1.a),s2=solubility(p2.c,p2.a);if(s1!=='insoluble'&&s2!=='insoluble')continue;const precip=s1==='insoluble'?makeSalt(p1.c,p1.a):makeSalt(p2.c,p2.a);const other=s1==='insoluble'?makeSalt(p2.c,p2.a):makeSalt(p1.c,p1.a);addLibraryReaction('Trao đổi tạo kết tủa',`${left.f} + ${right.f} → ${precip}↓ + ${other}`,`${left.n} + ${right.n}`,`${precip}↓ + ${other}`,'Hai dung dịch, nhiệt độ thường',`Tạo kết tủa ${precip}; dự đoán theo bảng độ tan phổ thông.`)}
+// Single displacement using a compact activity-series model.
+const RL_METALS=[['K','Kali',0],['Ba','Bari',1],['Ca','Canxi',2],['Na','Natri',3],['Mg','Magie',4],['Al','Nhôm',5],['Zn','Kẽm',6],['Fe','Sắt',7],['Pb','Chì',8],['Cu','Đồng',9],['Ag','Bạc',10]];
+for(const [mf,mn,mi] of RL_METALS)for(const salt of RL_SALT_ROWS){const target=RL_METALS.find(x=>x[0]===salt.c[0]);if(!target||mi>=target[2]||mf===salt.c[0])continue;const product=makeSalt(mf,salt.a[0]);addLibraryReaction('Thế đơn',`${mf} + ${salt.f} → ${product} + ${salt.c[0]}`,`${mn} + ${salt.n}`,`${product} + ${salt.c[1]}`,'Dung dịch hoặc đun nóng tùy cặp chất',`${mn} hoạt động mạnh hơn ${salt.c[1].toLowerCase()} nên có thể đẩy kim loại này khỏi muối.`)}
+// Common thermal decompositions from the same generated salt family.
+for(const salt of RL_SALT_ROWS){if(['CO3','HCO3','SO3'].includes(salt.a[0]))addLibraryReaction('Phân hủy nhiệt',`${salt.f} —Δ→ ${makeSalt(salt.c[0],'O')} + ${salt.a[0]==='CO3'?'CO₂↑':salt.a[0]==='SO3'?'SO₂↑':'CO₂↑'}`,salt.n,'oxit kim loại + khí','Đun nóng',`${salt.n} bị nhiệt phân theo quy tắc tổng quát của muối cacbonat/sunfit.`)}
+// Hydrocarbon combustion references, covering the generated organic catalog.
+for(let n=1;n<=120;n++){const h=2*n+2;const co= n===1?'CO₂':`${n}CO₂`;const water=h===2?'H₂O':`${h/2}H₂O`;addLibraryReaction('Cháy',`C${n}H${h} + ${n+h/4}O₂ → ${co} + ${water}`,`C${n}H${h} + O₂`,`CO₂ + H₂O`,'Đốt cháy trong O₂',`Ankan mạch ${n} carbon cháy hoàn toàn tạo CO₂ và H₂O.`)}
+// Keep rendering fast while still retaining the full in-memory catalog.
+function renderReactionLibrary(){const list=$('reactionLibraryList');if(!list)return;const q=($('reactionSearch')?.value||'').toLowerCase().trim(),type=$('reactionTypeFilter')?.value||'all';const filtered=REACTION_LIBRARY.filter(r=>(type==='all'||r.type===type)&&(!q||`${r.equation} ${r.type} ${r.reactants} ${r.products} ${r.desc}`.toLowerCase().includes(q)));$('reactionLibraryCount').textContent=`${REACTION_LIBRARY.length.toLocaleString('vi-VN')} phản ứng · ${filtered.length.toLocaleString('vi-VN')} kết quả`;const rows=filtered.slice(0,900);list.innerHTML=rows.length?rows.map(r=>`<div class="reaction-library-row" data-rid="${r.id}"><div class="eq">${r.equation}</div><div class="meta">#${String(r.id).padStart(4,'0')} · ${r.type}</div></div>`).join(''):'<div class="measurement-empty" style="padding:20px">Không tìm thấy phản ứng phù hợp.</div>';list.querySelectorAll('.reaction-library-row').forEach(row=>row.addEventListener('click',()=>{list.querySelectorAll('.reaction-library-row').forEach(x=>x.classList.remove('active'));row.classList.add('active');const r=REACTION_LIBRARY.find(x=>x.id===+row.dataset.rid);$('reactionLibraryDetail').innerHTML=`<h4>Phản ứng #${String(r.id).padStart(4,'0')}</h4><span class="reaction-badge">${r.type}</span><span class="reaction-badge">${r.condition}</span><div class="big-eq">${r.equation}</div><div style="color:var(--txt-2);font-size:11px;line-height:1.55"><strong style="color:#fff">Chất tham gia:</strong> ${r.reactants}<br><strong style="color:#fff">Sản phẩm:</strong> ${r.products}<br><strong style="color:#fff">Mô tả:</strong> ${r.desc}</div><div class="reaction-library-note"><i class="bi bi-info-circle"></i> Đây là dữ liệu học tập được sinh theo quy tắc tổng quát. Không tự tiến hành phản ứng ngoài phòng thí nghiệm có giám sát.</div>`}))}
+$('reactionSearch')?.addEventListener('input',renderReactionLibrary);$('reactionTypeFilter')?.addEventListener('change',renderReactionLibrary);$('reactionModal')?.addEventListener('shown.bs.modal',renderReactionLibrary);
+
+/* ============================================================
+   PRESETS
+   ============================================================ */
+const PRESETS=[
+  {name:'Trung hòa HCl + NaOH',ids:['hcl','naoh'],temp:25,vol:200},
+  {name:'Kết tủa AgCl',ids:['agno3','nacl'],temp:25,vol:200},
+  {name:'Sắt tan trong HCl',ids:['fe','hcl'],temp:25,vol:200},
+  {name:'Sủi bọt CO₂',ids:['hcl','na2co3'],temp:25,vol:200},
+  {name:'Cu(OH)₂ kết tủa',ids:['cuso4','naoh'],temp:25,vol:200},
+  {name:'Fe + CuSO₄',ids:['fe','cuso4'],temp:25,vol:200},
+  {name:'Phân hủy H₂O₂',ids:['h2o2','mno2'],temp:25,vol:200},
+  {name:'Đồng hồ Na₂S₂O₃',ids:['na2s2o3','hcl'],temp:25,vol:200},
+  {name:'Khí Cl₂ (KMnO₄ + HCl)',ids:['kmno4','hcl'],temp:80,vol:200},
+  {name:'PP + NaOH',ids:['pp','naoh'],temp:25,vol:200},
+  {name:'Kết tủa vàng AgI',ids:['agno3','ki'],temp:25,vol:200},
+  {name:'BaSO₄ trắng',ids:['bacl2','h2so4'],temp:25,vol:200}
+];
+function buildPresets(){
+  const menu=$('presetsMenu');
+  menu.innerHTML=PRESETS.map((p,i)=>`<li><a class="dropdown-item" href="#" data-preset="${i}">${p.name}</a></li>`).join('');
+  menu.addEventListener('click',e=>{
+    const l=e.target.closest('[data-preset]');if(!l)return;
+    e.preventDefault();applyPreset(PRESETS[+l.dataset.preset]);
+  });
+}
+function applyPreset(p){
+  state.selected.clear();
+  p.ids.forEach(id=>{if(CHEM_MAP[id])state.selected.add(id);});
+  state.temp=p.temp;state.volume=p.vol;
+  $('rngTemp').value=p.temp;$('valTemp').textContent=p.temp+' °C';
+  $('rngVolume').value=p.vol;$('valVolume').textContent=p.vol+' mL';
+  p.ids.forEach(id=>spawnChemicalDrop(id));
+  renderChemicals();refreshLab();
+  toast('Đã tải preset',p.name,'info',2600);
+}
+
+/* ============================================================
+   CLOCK + BOOT
+   ============================================================ */
+setInterval(()=>{$('statusTime').textContent=new Date().toLocaleTimeString('vi-VN');},1000);
+function boot(){
+  buildFilters();renderChemicals();buildPresets();bindControls();
+  initThree();refreshLab();
+  $('statusDevice').textContent=webglOK?'WebGL ✓':'no WebGL';
+  $('statusMsg').textContent='Ready';
+  $('statusTime').textContent=new Date().toLocaleTimeString('vi-VN');
+}
+boot();
